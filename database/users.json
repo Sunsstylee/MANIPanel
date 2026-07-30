@@ -1,0 +1,14 @@
+{
+    "admin": {
+        "password": "12345",
+        "role": "Administrator"
+    },
+    "moderator_alex": {
+        "password": "777",
+        "role": "Moderator"
+    },
+    "user1": {
+        "password": "000",
+        "role": "User"
+    }
+}
