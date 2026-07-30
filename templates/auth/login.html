@@ -3,28 +3,30 @@
 {% block title %}{{ t('login_title') }}{% endblock %}
 
 {% block content %}
-<div class="login-card glass-panel">
-    <div class="brand-badge">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+<div class="page-wrapper">
+    <div class="login-card glass-panel">
+        <div class="brand-badge">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        
+        <h2>{{ t('login_header') }}</h2>
+        <p class="login-subtitle">{{ t('login_subtitle') }}</p>
+
+        {% if error_key %}
+            <div class="error-msg">
+                {{ t(error_key) }}
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="input-group">
+                <input type="text" name="username" placeholder="{{ t('username_placeholder') }}" required>
+            </div>
+            <div class="input-group">
+                <input type="password" name="password" placeholder="{{ t('password_placeholder') }}" required>
+            </div>
+            <button type="submit" class="btn-neon">{{ t('login_btn') }}</button>
+        </form>
     </div>
-    
-    <h2>{{ t('login_header') }}</h2>
-    <p class="login-subtitle">{{ t('login_subtitle') }}</p>
-
-    {% if error_key %}
-        <div class="error-msg">
-            {{ t(error_key) }}
-        </div>
-    {% endif %}
-
-    <form method="POST" action="{{ url_for('auth.login') }}">
-        <div class="input-group">
-            <input type="text" name="username" placeholder="{{ t('username_placeholder') }}" required>
-        </div>
-        <div class="input-group">
-            <input type="password" name="password" placeholder="{{ t('password_placeholder') }}" required>
-        </div>
-        <button type="submit" class="btn-neon">{{ t('login_btn') }}</button>
-    </form>
 </div>
 {% endblock %}
