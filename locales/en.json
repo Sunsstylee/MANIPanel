@@ -27,5 +27,6 @@
     "stat_users": "Total Users",
     "stat_logs": "Total Logs",
     "stat_active_sum": "Active Balance",
-    "tg_company_btn": "MANI Company"
+    "tg_company_btn": "MANI Company",
+    "error_empty": "Please fill in all fields!"
 }
