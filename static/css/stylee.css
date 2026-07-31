@@ -6,7 +6,13 @@
 }
 
 body {
-    background-color: var(--bg-dark);
+    background-color: #050711;
+    background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 194, 255, 0.13) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(0, 194, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 50% 30%, rgba(10, 25, 50, 0.6) 0%, transparent 70%),
+        linear-gradient(180deg, #050711 0%, #03040a 100%);
+    background-attachment: fixed;
     color: var(--text-main);
     font-family: 'JetBrains Mono', monospace;
     margin: 0;
