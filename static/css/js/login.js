@@ -7,27 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!form) return;
 
     form.addEventListener('submit', (e) => {
-        // Сбрасываем старую ошибку и подсветку полей
         usernameInput.classList.remove('input-error');
         passwordInput.classList.remove('input-error');
         errorContainer.innerHTML = '';
 
-        let hasError = false;
+        const usernameVal = usernameInput.value.trim();
+        const passwordVal = passwordInput.value.trim();
 
-        if (!usernameInput.value.trim()) {
-            usernameInput.classList.add('input-error');
-            hasError = true;
-        }
-
-        if (!passwordInput.value.trim()) {
-            passwordInput.classList.add('input-error');
-            hasError = true;
-        }
-
-        if (hasError) {
-            e.preventDefault(); // Запрещаем отправку формы
+        if (!usernameVal || !passwordVal) {
+            e.preventDefault();
             
-            // Берем переведенную строчку из data-error-empty формы
+            if (!usernameVal) usernameInput.classList.add('input-error');
+            if (!passwordVal) passwordInput.classList.add('input-error');
+
             const errorMessage = form.dataset.errorEmpty || 'Заполните все поля!';
             
             const errorDiv = document.createElement('div');
@@ -37,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Снимаем подсветку ошибки при вводе символов
     [usernameInput, passwordInput].forEach(input => {
         input.addEventListener('input', () => {
             if (input.value.trim()) {
