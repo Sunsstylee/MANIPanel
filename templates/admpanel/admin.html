@@ -81,12 +81,14 @@
             <h3>{{ t('admin_modal_create_title') }}</h3>
             <button class="modal-close" id="closeCreateModal">&times;</button>
         </div>
-        <form id="createForm">
+        <form id="createForm" novalidate data-error-empty="{{ t('error_empty') }}">
+            <div id="createErrorContainer" class="error-container"></div>
+            
             <div class="input-group">
-                <input type="text" id="createUsername" name="username" placeholder="{{ t('username_placeholder') }}" required autocomplete="off">
+                <input type="text" id="createUsername" name="username" placeholder="{{ t('username_placeholder') }}" autocomplete="off">
             </div>
             <div class="input-group">
-                <input type="password" id="createPassword" name="password" placeholder="{{ t('password_placeholder') }}" required>
+                <input type="password" id="createPassword" name="password" placeholder="{{ t('password_placeholder') }}">
             </div>
 
             <div class="input-group">
@@ -125,8 +127,18 @@
             <h3>{{ t('admin_modal_edit_title') }}: <span id="editModalUsername" style="color: var(--neon-blue, #00f0ff);"></span></h3>
             <button class="modal-close" id="closeEditModal">&times;</button>
         </div>
-        <form id="editForm">
-            <input type="hidden" id="editTargetUsername" name="username">
+        <form id="editForm" novalidate data-confirm-delete="{{ t('confirm_delete_user') }}" data-error-empty="{{ t('error_empty') }}">
+            <div id="editErrorContainer" class="error-container"></div>
+            
+            <!-- Скрытое поле с текущим (старым) логином -->
+            <input type="hidden" id="editTargetUsername" name="old_username">
+
+            <!-- Изменение логина -->
+            <div class="input-group">
+                <input type="text" id="editUsername" name="new_username" placeholder="{{ t('username_placeholder') }}" autocomplete="off">
+            </div>
+
+            <!-- Изменение пароля -->
             <div class="input-group">
                 <input type="password" id="editPassword" name="password" placeholder="{{ t('admin_new_password_optional') }}">
             </div>
@@ -154,43 +166,12 @@
             </div>
 
             <div class="modal-footer flex-between">
-                <button type="button" class="btn-danger-text" id="deleteUserBtn">{{ t('admin_btn_delete') }}</button>
+                <button type="button" class="btn-neon-danger" id="deleteUserBtn">{{ t('admin_btn_delete') }}</button>
                 <button type="submit" class="btn-neon" style="width: auto; padding: 12px 28px;">{{ t('admin_btn_save') }}</button>
             </div>
         </form>
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/admin.js') }}?v=4.0"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const searchInput = document.getElementById('userSearchInput');
-        const userRows = document.querySelectorAll('.user-row');
-        const emptyRow = document.getElementById('emptyRow');
-
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                let visibleCount = 0;
-
-                userRows.forEach(row => {
-                    const username = row.getAttribute('data-username') || '';
-                    
-                    if (username.includes(query)) {
-                        row.style.display = '';
-                        row.classList.remove('hidden-row');
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                        row.classList.add('hidden-row');
-                    }
-                });
-
-                if (emptyRow) {
-                    emptyRow.style.display = (visibleCount === 0) ? '' : 'none';
-                }
-            });
-        }
-    });
-</script>
+<script src="{{ url_for('static', filename='js/admin.js') }}?v=6.0"></script>
 {% endblock %}

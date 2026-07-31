@@ -13,15 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             userRows.forEach(row => {
                 const username = row.getAttribute('data-username') || '';
-                const fullContent = row.textContent.toLowerCase();
-
-                if (username.includes(query) || fullContent.includes(query)) {
-                    row.classList.remove('hidden-row');
+                if (username.includes(query)) {
                     row.style.display = '';
+                    row.classList.remove('hidden-row');
                     visibleCount++;
                 } else {
-                    row.classList.add('hidden-row');
                     row.style.display = 'none';
+                    row.classList.add('hidden-row');
                 }
             });
 
@@ -32,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================================================
-    // 2. УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ
+    // 2. УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ И СБРОС ОШИБОК
     // ==========================================================================
     const createModal = document.getElementById('createModal');
     const editModal = document.getElementById('editModal');
@@ -45,10 +43,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const editForm = document.getElementById('editForm');
     const deleteUserBtn = document.getElementById('deleteUserBtn');
 
-    // --- Открытие / Закрытие модалки создания ---
+    const createUsernameInput = document.getElementById('createUsername');
+    const createPasswordInput = document.getElementById('createPassword');
+    const editUsernameInput = document.getElementById('editUsername');
+    
+    const createErrorContainer = document.getElementById('createErrorContainer');
+    const editErrorContainer = document.getElementById('editErrorContainer');
+
+    function resetCreateErrors() {
+        if (createUsernameInput) createUsernameInput.classList.remove('input-error');
+        if (createPasswordInput) createPasswordInput.classList.remove('input-error');
+        if (createErrorContainer) createErrorContainer.innerHTML = '';
+    }
+
+    function resetEditErrors() {
+        if (editUsernameInput) editUsernameInput.classList.remove('input-error');
+        if (editErrorContainer) editErrorContainer.innerHTML = '';
+    }
+
+    // Очистка при вводе
+    [createUsernameInput, createPasswordInput].forEach(input => {
+        if (input) {
+            input.addEventListener('input', () => {
+                input.classList.remove('input-error');
+                if (createErrorContainer) createErrorContainer.innerHTML = '';
+            });
+        }
+    });
+
+    if (editUsernameInput) {
+        editUsernameInput.addEventListener('input', () => {
+            editUsernameInput.classList.remove('input-error');
+            if (editErrorContainer) editErrorContainer.innerHTML = '';
+        });
+    }
+
+    // Открытие / Закрытие модалок
     if (openCreateBtn && createModal) {
         openCreateBtn.addEventListener('click', () => {
             if (createForm) createForm.reset();
+            resetCreateErrors();
             createModal.classList.add('active');
         });
     }
@@ -56,25 +90,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeCreateBtn && createModal) {
         closeCreateBtn.addEventListener('click', () => {
             createModal.classList.remove('active');
+            resetCreateErrors();
         });
     }
 
-    // --- Закрытие модалки редактирования ---
     if (closeEditBtn && editModal) {
         closeEditBtn.addEventListener('click', () => {
             editModal.classList.remove('active');
+            resetEditErrors();
         });
     }
 
-    // --- Закрытие по клику на затемненный фон (Backdrop) ---
     window.addEventListener('click', (e) => {
-        if (e.target === createModal) createModal.classList.remove('active');
-        if (e.target === editModal) editModal.classList.remove('active');
+        if (e.target === createModal) {
+            createModal.classList.remove('active');
+            resetCreateErrors();
+        }
+        if (e.target === editModal) {
+            editModal.classList.remove('active');
+            resetEditErrors();
+        }
     });
 
-    // --- Открытие модалки редактирования (Клик на шестеренку) ---
+    // Открытие модалки редактирования (Клик на шестеренку)
     document.querySelectorAll('.btn-gear').forEach(btn => {
         btn.addEventListener('click', () => {
+            resetEditErrors();
+
             const username = btn.getAttribute('data-username');
             const status = btn.getAttribute('data-status');
             const rolesAttr = btn.getAttribute('data-roles') || '';
@@ -87,10 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (modalUsernameLabel) modalUsernameLabel.textContent = username;
             if (targetUsernameInput) targetUsernameInput.value = username;
+            if (editUsernameInput) editUsernameInput.value = username; // Заполняем поле смены логина
             if (editStatusSelect) editStatusSelect.value = status;
             if (editPasswordInput) editPasswordInput.value = '';
 
-            // Выставление чекбоксов ролей
             document.querySelectorAll('input[name="editRoles"]').forEach(cb => {
                 cb.checked = roles.includes(cb.value);
             });
@@ -102,18 +144,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================================================
-    // 3. ОТПРАВКА ФОРМ (API)
+    // 3. ОТПРАВКА ФОРМ С КАСТОМНОЙ ВАЛИДАЦИЕЙ
     // ==========================================================================
 
-    // --- Создание пользователя ---
+    // Создание пользователя
     if (createForm) {
         createForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            resetCreateErrors();
 
-            const username = document.getElementById('createUsername').value.trim();
-            const password = document.getElementById('createPassword').value.trim();
+            const username = createUsernameInput.value.trim();
+            const password = createPasswordInput.value.trim();
             const status = document.getElementById('createStatus').value;
             
+            if (!username || !password) {
+                if (!username) createUsernameInput.classList.add('input-error');
+                if (!password) createPasswordInput.classList.add('input-error');
+
+                const errorMessage = createForm.dataset.errorEmpty || 'Заполните все поля!';
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-msg';
+                errorDiv.textContent = errorMessage;
+                createErrorContainer.appendChild(errorDiv);
+                return;
+            }
+
             const roles = [];
             document.querySelectorAll('input[name="createRoles"]:checked').forEach(cb => {
                 roles.push(cb.value);
@@ -131,7 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     window.location.reload();
                 } else {
-                    alert(data.message || 'Error');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-msg';
+                    errorDiv.textContent = data.message || 'Ошибка';
+                    createErrorContainer.appendChild(errorDiv);
                 }
             } catch (err) {
                 console.error('Error creating user:', err);
@@ -139,14 +198,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Редактирование пользователя ---
+    // Редактирование пользователя
     if (editForm) {
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            resetEditErrors();
 
-            const username = document.getElementById('editTargetUsername').value;
+            const oldUsername = document.getElementById('editTargetUsername').value;
+            const newUsername = editUsernameInput.value.trim();
             const password = document.getElementById('editPassword').value.trim();
             const status = document.getElementById('editStatus').value;
+
+            if (!newUsername) {
+                editUsernameInput.classList.add('input-error');
+                const errorMessage = editForm.dataset.errorEmpty || 'Заполните все поля!';
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-msg';
+                errorDiv.textContent = errorMessage;
+                editErrorContainer.appendChild(errorDiv);
+                return;
+            }
 
             const roles = [];
             document.querySelectorAll('input[name="editRoles"]:checked').forEach(cb => {
@@ -157,7 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch('/admin/api/users/update', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, roles, status })
+                    body: JSON.stringify({ 
+                        old_username: oldUsername, 
+                        new_username: newUsername, 
+                        password, 
+                        roles, 
+                        status 
+                    })
                 });
 
                 const data = await res.json();
@@ -165,7 +243,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     window.location.reload();
                 } else {
-                    alert(data.message || 'Error');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-msg';
+                    errorDiv.textContent = data.message || 'Ошибка';
+                    editErrorContainer.appendChild(errorDiv);
                 }
             } catch (err) {
                 console.error('Error updating user:', err);
@@ -173,11 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Удаление пользователя ---
+    // Удаление пользователя
     if (deleteUserBtn) {
         deleteUserBtn.addEventListener('click', async () => {
+            resetEditErrors();
             const username = document.getElementById('editTargetUsername').value;
-            if (!confirm(`${username}?`)) return;
+            const confirmMsg = editForm.dataset.confirmDelete || 'Удалить пользователя';
+            
+            if (!confirm(`${confirmMsg}: ${username}?`)) return;
 
             try {
                 const res = await fetch('/admin/api/users/delete', {
@@ -191,7 +275,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     window.location.reload();
                 } else {
-                    alert(data.message || 'Error');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-msg';
+                    errorDiv.textContent = data.message || 'Ошибка';
+                    editErrorContainer.appendChild(errorDiv);
                 }
             } catch (err) {
                 console.error('Error deleting user:', err);

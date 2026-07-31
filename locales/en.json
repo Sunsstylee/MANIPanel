@@ -55,5 +55,10 @@
     "err_update_failed": "Error updating account",
     "err_delete_failed": "Error deleting account",
     "err_server_conn": "Server connection error",
-    "confirm_delete_user": "Delete user"
+    "confirm_delete_user": "Delete user",
+    "err_user_exists": "User with this username already exists!",
+    "err_user_not_found": "User not found!",
+    "msg_account_created": "Account successfully created",
+    "msg_account_updated": "Account details successfully updated",
+    "msg_user_deleted": "User successfully deleted"
 }

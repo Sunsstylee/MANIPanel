@@ -64,7 +64,7 @@ def api_create_user():
         roles = ["User"]
 
     success, msg = add_user(username, password, roles, status)
-    return jsonify({'success': success, 'message': msg})
+    return jsonify({'success': success, 'message': t(msg, lang)})
 
 @admin_bp.route('/api/users/update', methods=['POST'])
 def api_update_user():
@@ -73,19 +73,33 @@ def api_update_user():
         return jsonify({'error': t('err_unauthorized', lang)}), 401
         
     data = request.get_json() or {}
-    username = data.get('username', '').strip()
+    old_username = data.get('old_username', '').strip() or data.get('username', '').strip()
+    new_username = data.get('new_username', '').strip()
     roles = data.get('roles', [])
     status = data.get('status', 'Beginner')
     new_password = data.get('password', '').strip()
 
-    if not username:
+    if not old_username:
         return jsonify({'success': False, 'message': t('err_user_not_specified', lang)}), 400
+
+    if not new_username:
+        return jsonify({'success': False, 'message': t('err_fill_credentials', lang)}), 400
 
     if not roles:
         roles = ["User"]
 
-    success, msg = update_user(username, roles, status, new_password if new_password else None)
-    return jsonify({'success': success, 'message': msg})
+    success, msg = update_user(
+        old_username=old_username, 
+        roles=roles, 
+        status=status, 
+        new_password=new_password if new_password else None,
+        new_username=new_username if new_username != old_username else None
+    )
+
+    if success and session.get('username') == old_username and new_username != old_username:
+        session['username'] = new_username
+
+    return jsonify({'success': success, 'message': t(msg, lang)})
 
 @admin_bp.route('/api/users/delete', methods=['POST'])
 def api_delete_user():
@@ -100,4 +114,4 @@ def api_delete_user():
         return jsonify({'success': False, 'message': t('err_cannot_delete_self', lang)}), 400
 
     success, msg = delete_user(username)
-    return jsonify({'success': success, 'message': msg})
+    return jsonify({'success': success, 'message': t(msg, lang)})

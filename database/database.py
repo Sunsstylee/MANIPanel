@@ -18,7 +18,7 @@ def save_users(users):
         json.dump(users, f, indent=4, ensure_ascii=False)
 
 def normalize_user_data(username, raw_data):
-    """ Приводит старые форматы пользователей к новому единому формату с массивом ролей и статусом """
+    """Приводит форматы пользователей к единому виду с массивом ролей и статусом"""
     if isinstance(raw_data, str):
         return {
             "password": raw_data,
@@ -71,7 +71,7 @@ def get_users_count():
 def add_user(username, password, roles, status):
     users = load_users()
     if username in users:
-        return False, "Пользователь с таким логином уже существует"
+        return False, "err_user_exists"
     
     users[username] = {
         "password": password,
@@ -79,27 +79,36 @@ def add_user(username, password, roles, status):
         "status": status
     }
     save_users(users)
-    return True, "Аккаунт успешно создан"
+    return True, "msg_account_created"
 
-def update_user(username, roles, status, new_password=None):
+def update_user(old_username, roles, status, new_password=None, new_username=None):
     users = load_users()
-    if username not in users:
-        return False, "Пользователь не найден"
+    if old_username not in users:
+        return False, "err_user_not_found"
     
-    current = normalize_user_data(username, users[username])
+    current = normalize_user_data(old_username, users[old_username])
+    target_username = old_username
+
+    if new_username and new_username != old_username:
+        if new_username in users:
+            return False, "err_user_exists"
+        
+        del users[old_username]
+        target_username = new_username
+
     current["roles"] = roles if isinstance(roles, list) else [roles]
     current["status"] = status
     if new_password:
         current["password"] = new_password
         
-    users[username] = current
+    users[target_username] = current
     save_users(users)
-    return True, "Данные аккаунта обновлены"
+    return True, "msg_account_updated"
 
 def delete_user(username):
     users = load_users()
     if username in users:
         del users[username]
         save_users(users)
-        return True, "Пользователь удален"
-    return False, "Пользователь не найден"
+        return True, "msg_user_deleted"
+    return False, "err_user_not_found"

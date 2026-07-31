@@ -55,5 +55,10 @@
     "err_update_failed": "Ошибка обновления аккаунта",
     "err_delete_failed": "Ошибка удаления аккаунта",
     "err_server_conn": "Ошибка соединения с сервером",
-    "confirm_delete_user": "Удалить пользователя"
+    "confirm_delete_user": "Удалить пользователя",
+    "err_user_exists": "Пользователь с таким логином уже существует!",
+    "err_user_not_found": "Пользователь не найден!",
+    "msg_account_created": "Аккаунт успешно создан",
+    "msg_account_updated": "Данные аккаунта обновлены",
+    "msg_user_deleted": "Пользователь удален"
 }

@@ -201,7 +201,7 @@
     font-size: 14px;
 }
 
-/* Модальные окна (Исправлено точное центрирование) */
+/* Модальные окна */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -295,6 +295,7 @@
     outline: none;
     font-size: 14px;
     box-sizing: border-box;
+    transition: all 0.2s ease;
 }
 
 .input-group input:focus {
@@ -302,7 +303,29 @@
     box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
 }
 
-/* Стилизация Селекта (Custom Dropdown) под дизайн панели */
+/* Ошибки */
+.input-error {
+    border-color: #ff4757 !important;
+    box-shadow: 0 0 12px rgba(255, 71, 87, 0.4) !important;
+}
+
+.error-container {
+    margin-bottom: 16px;
+}
+
+.error-msg {
+    background: rgba(255, 71, 87, 0.12);
+    border: 1px solid rgba(255, 71, 87, 0.4);
+    color: #ff4757;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    box-shadow: 0 0 12px rgba(255, 71, 87, 0.2);
+}
+
+/* Custom Dropdown Select */
 .custom-select {
     width: 100%;
     height: 44px;
@@ -381,8 +404,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
 }
 
+/* Основная неоновая кнопка (Голубая) */
 .btn-neon {
     width: 100%;
     height: 44px;
@@ -401,15 +426,25 @@
     box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
 }
 
-.btn-danger-text {
-    background: none;
-    border: none;
+/* Неоновая кнопка удаления (Красный неон в стиле сайта) */
+.btn-neon-danger {
+    height: 44px;
+    padding: 0 20px;
+    background: rgba(255, 71, 87, 0.12);
+    border: 1px solid #ff4757;
     color: #ff4757;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
     font-size: 14px;
-    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.btn-danger-text:hover {
-    text-decoration: underline;
+.btn-neon-danger:hover {
+    background: rgba(255, 71, 87, 0.26);
+    border-color: #ff4757;
+    box-shadow: 0 0 14px rgba(255, 71, 87, 0.4);
 }
