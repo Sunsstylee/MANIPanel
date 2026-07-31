@@ -27,5 +27,6 @@
     "stat_users": "Аккаунтов",
     "stat_logs": "Всего логов",
     "stat_active_sum": "Активный баланс",
-    "tg_company_btn": "MANI Company"
+    "tg_company_btn": "MANI Company",
+    "error_empty": "Заполните все поля!"
 }
