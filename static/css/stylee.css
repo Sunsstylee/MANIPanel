@@ -8,11 +8,11 @@
 body {
     background-color: #050711;
     background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 194, 255, 0.13) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(0, 194, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 50% 30%, rgba(10, 25, 50, 0.6) 0%, transparent 70%),
-        linear-gradient(180deg, #050711 0%, #03040a 100%);
-    background-attachment: fixed;
+        radial-gradient(circle at 15% 15%, rgba(0, 194, 255, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(0, 194, 255, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(10, 25, 50, 0.5) 0%, #050711 100%);
+    background-size: 150% 150%;
+    animation: ambientGlow 25s ease infinite alternate;
     color: var(--text-main);
     font-family: 'JetBrains Mono', monospace;
     margin: 0;
@@ -21,6 +21,19 @@ body {
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
+    position: relative;
+}
+
+@keyframes ambientGlow {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 30% 100%;
+    }
 }
 
 /* ==========================================================================
@@ -463,7 +476,6 @@ body {
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 194, 255, 0.1);
 }
 
-/* Задержка появления для каждого блока (Каскад) */
 .stats-grid .stat-card:nth-child(1) { animation-delay: 0.06s; }
 .stats-grid .stat-card:nth-child(2) { animation-delay: 0.12s; }
 .stats-grid .stat-card:nth-child(3) { animation-delay: 0.18s; }
