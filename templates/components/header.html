@@ -1,0 +1,34 @@
+<header class="navbar">
+    <!-- Левый блок (для баланса сетки) -->
+    <div class="nav-left">
+        <div class="nav-status-badge">
+            <span class="status-pulse"></span>
+            <span class="status-text">ONLINE</span>
+        </div>
+    </div>
+
+    <!-- Текст РОВНО ПО ЦЕНТРУ -->
+    <div class="nav-center">
+        <a href="{{ url_for('index') }}" class="nav-brand">
+            <div class="nav-brand-dot"></div>
+            <span class="brand-text">MANIAdmPanel</span>
+        </a>
+    </div>
+
+    <!-- Правый блок с кнопками -->
+    <div class="nav-right">
+        <div class="lang-switcher">
+            <a href="/set_lang/ru" class="lang-btn {% if session.get('lang', 'ru') == 'ru' %}active{% endif %}">RU</a>
+            <a href="/set_lang/en" class="lang-btn {% if session.get('lang') == 'en' %}active{% endif %}">EN</a>
+        </div>
+
+        {% if session.get('username') %}
+            <a href="{{ url_for('auth.logout') }}" class="btn-logout" title="{{ t('logout_btn') }}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                </svg>
+                <span>{{ t('logout_btn') }}</span>
+            </a>
+        {% endif %}
+    </div>
+</header>
