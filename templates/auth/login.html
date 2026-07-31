@@ -22,7 +22,7 @@
 
         <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm" data-error-empty="{{ t('error_empty') }}" novalidate>
             <div class="input-group">
-                <input type="text" name="username" id="usernameInput" placeholder="{{ t('username_placeholder') }}">
+                <input type="text" name="username" id="usernameInput" placeholder="{{ t('username_placeholder') }}" value="{{ username if username else '' }}">
             </div>
             <div class="input-group">
                 <input type="password" name="password" id="passwordInput" placeholder="{{ t('password_placeholder') }}">
