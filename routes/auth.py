@@ -13,14 +13,13 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# Автоматическая передача статистики в сайдбар для всех страниц
 @auth_bp.context_processor
 def inject_sidebar_stats():
     return dict(
         sidebar_stats={
-            'users_count': get_users_count(), # Динамическое кол-во аккаунтов из файла/БД
-            'total_logs': 0,                  # Пока нет логики логов — ставим 0
-            'active_usd': '0.00'              # Пока нет логов — ставим 0.00
+            'users_count': get_users_count(),
+            'total_logs': 0,
+            'active_usd': '0.00'
         }
     )
 
@@ -30,17 +29,23 @@ def login():
         return redirect(url_for('auth.dashboard'))
         
     error_key = None
+    username = ""
+    
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
         
-        if verify_user(username, password):
+        # 1. Если не заполнен логин ИЛИ не заполнен пароль -> Ошибка пустых полей
+        if not username or not password:
+            error_key = "error_empty"
+        # 2. Только если оба поля заполнены -> проверяем логин и пароль
+        elif verify_user(username, password):
             session['username'] = username
             return redirect(url_for('auth.dashboard'))
         else:
             error_key = "error_invalid"
             
-    return render_template('auth/login.html', error_key=error_key)
+    return render_template('auth/login.html', error_key=error_key, username=username)
 
 @auth_bp.route('/dashboard')
 @login_required
