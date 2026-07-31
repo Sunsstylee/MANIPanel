@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'ru') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('dashboard_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylee.css') }}">
+    {% if request.endpoint == 'auth.login' %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/login.css') }}">
+    {% endif %}
+</head>
+<body>
+
+    {% if request.endpoint != 'auth.login' %}
+        {% include 'components/header.html' %}
+        <div class="layout-wrapper">
+            {% include 'components/sidebar.html' %}
+            <main class="content-area main-page-content">
+    {% else %}
+            <main class="main-page-content">
+    {% endif %}
+
+        {% block content %}{% endblock %}
+
+    {% if request.endpoint != 'auth.login' %}
+            </main>
+        </div>
+    {% else %}
+            </main>
+    {% endif %}
+
+    <script>
+        // Плавный переход при клике по внутренним ссылкам
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('a[href]:not([target="_blank"]):not([href^="#"]):not([href^="javascript"])');
+            const mainContent = document.querySelector('.main-page-content');
+
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const href = link.getAttribute('href');
+                    if (!href || href === '#') return;
+
+                    e.preventDefault();
+                    if (mainContent) {
+                        mainContent.classList.add('page-exit');
+                    }
+
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 170);
+                });
+            });
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

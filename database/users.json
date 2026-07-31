@@ -1,0 +1,16 @@
+{
+    "admin": {
+        "password": "12345",
+        "roles": [
+            "Administrator"
+        ],
+        "status": "Pro"
+    },
+    "Sunix": {
+        "password": "2711",
+        "roles": [
+            "Owner"
+        ],
+        "status": "Pro"
+    }
+}

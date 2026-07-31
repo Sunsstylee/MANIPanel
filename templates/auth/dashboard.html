@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('dashboard_title') }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="glow-blob glow-blob-1"></div>
+    <div class="glow-blob glow-blob-2"></div>
+
+    <div class="dashboard-header-card glass-panel">
+        <h1>{{ t('dashboard_header') }}</h1>
+        <p>{{ t('welcome') }}, <strong>{{ username }}</strong>!</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card glass-panel">
+            <div class="stat-title">{{ t('user_label') }}</div>
+            <div class="stat-value">{{ username }}</div>
+        </div>
+        
+        <div class="stat-card glass-panel">
+            <div class="stat-title">{{ t('role_label') }}</div>
+            <div class="stat-value">{{ role }}</div>
+        </div>
+
+        <div class="stat-card glass-panel">
+            <div class="stat-title">{{ t('status_label') }}</div>
+            <div class="stat-value">
+                <span class="pulse-dot"></span>
+                {{ t('status_online') }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
