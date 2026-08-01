@@ -115,3 +115,38 @@ def api_delete_user():
 
     success, msg = delete_user(username)
     return jsonify({'success': success, 'message': t(msg, lang)})
+
+@admin_bp.route('/api/users/delete_bulk', methods=['POST'])
+def api_delete_users_bulk():
+    lang = session.get('lang', 'ru')
+    if 'username' not in session:
+        return jsonify({'error': t('err_unauthorized', lang)}), 401
+
+    data = request.get_json() or {}
+    usernames = data.get('usernames', [])
+    current_user = session.get('username')
+
+    if not usernames or not isinstance(usernames, list):
+        return jsonify({'success': False, 'message': t('err_user_not_specified', lang)}), 400
+
+    deleted_count = 0
+    errors = []
+
+    for username in usernames:
+        username = str(username).strip()
+        if not username:
+            continue
+        if username == current_user:
+            errors.append(t('err_cannot_delete_self', lang))
+            continue
+
+        success, msg = delete_user(username)
+        if success:
+            deleted_count += 1
+        else:
+            errors.append(t(msg, lang))
+
+    if deleted_count > 0:
+        return jsonify({'success': True, 'count': deleted_count, 'errors': errors})
+    
+    return jsonify({'success': False, 'message': errors[0] if errors else t('err_user_not_specified', lang)}), 400

@@ -173,12 +173,138 @@ document.addEventListener('DOMContentLoaded', () => {
             tableBody.appendChild(emptyRow);
             emptyRow.style.display = (visibleRows.length === 0) ? '' : 'none';
         }
+        
+        updateBulkSelection();
     }
 
     if (searchInput) searchInput.addEventListener('input', updateTable);
 
     // ==========================================================================
-    // 4. УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ
+    // 4. МАССОВОЕ ВЫДЕЛЕНИЕ И УДАЛЕНИЕ (SELECTION MODE & BULK ACTIONS)
+    // ==========================================================================
+    const adminContainer = document.getElementById('adminContainer');
+    const toggleSelectModeBtn = document.getElementById('toggleSelectModeBtn');
+    const selectAllUsersCb = document.getElementById('selectAllUsers');
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+    const bulkSelectedCount = document.getElementById('bulkSelectedCount');
+    const cancelSelectBtn = document.getElementById('cancelSelectBtn');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+    function getVisibleUserCheckboxes() {
+        return Array.from(document.querySelectorAll('.user-row:not(.hidden-row) .user-select-cb'));
+    }
+
+    function updateBulkSelection() {
+        const visibleCbs = getVisibleUserCheckboxes();
+        const checkedCbs = visibleCbs.filter(cb => cb.checked);
+
+        checkedCbs.forEach(cb => {
+            const row = cb.closest('.user-row');
+            if (row) row.classList.add('selected-row');
+        });
+
+        visibleCbs.filter(cb => !cb.checked).forEach(cb => {
+            const row = cb.closest('.user-row');
+            if (row) row.classList.remove('selected-row');
+        });
+
+        if (bulkSelectedCount) {
+            bulkSelectedCount.textContent = checkedCbs.length;
+        }
+
+        if (selectAllUsersCb) {
+            selectAllUsersCb.checked = visibleCbs.length > 0 && checkedCbs.length === visibleCbs.length;
+            selectAllUsersCb.indeterminate = checkedCbs.length > 0 && checkedCbs.length < visibleCbs.length;
+        }
+
+        if (adminContainer && adminContainer.classList.contains('selection-mode') && checkedCbs.length > 0) {
+            if (bulkActionsBar) bulkActionsBar.classList.add('active');
+        } else {
+            if (bulkActionsBar) bulkActionsBar.classList.remove('active');
+        }
+    }
+
+    function exitSelectMode() {
+        if (adminContainer) adminContainer.classList.remove('selection-mode');
+        if (toggleSelectModeBtn) toggleSelectModeBtn.classList.remove('active');
+        if (bulkActionsBar) bulkActionsBar.classList.remove('active');
+        
+        document.querySelectorAll('.user-select-cb').forEach(cb => {
+            cb.checked = false;
+            const row = cb.closest('.user-row');
+            if (row) row.classList.remove('selected-row');
+        });
+        if (selectAllUsersCb) {
+            selectAllUsersCb.checked = false;
+            selectAllUsersCb.indeterminate = false;
+        }
+    }
+
+    if (toggleSelectModeBtn) {
+        toggleSelectModeBtn.addEventListener('click', () => {
+            const isSelectionMode = adminContainer.classList.toggle('selection-mode');
+            toggleSelectModeBtn.classList.toggle('active', isSelectionMode);
+
+            if (!isSelectionMode) {
+                exitSelectMode();
+            }
+        });
+    }
+
+    if (cancelSelectBtn) {
+        cancelSelectBtn.addEventListener('click', () => {
+            exitSelectMode();
+        });
+    }
+
+    if (selectAllUsersCb) {
+        selectAllUsersCb.addEventListener('change', () => {
+            const visibleCbs = getVisibleUserCheckboxes();
+            visibleCbs.forEach(cb => {
+                cb.checked = selectAllUsersCb.checked;
+            });
+            updateBulkSelection();
+        });
+    }
+
+    document.addEventListener('change', (e) => {
+        if (e.target && e.target.classList.contains('user-select-cb')) {
+            updateBulkSelection();
+        }
+    });
+
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', async () => {
+            const visibleCbs = getVisibleUserCheckboxes();
+            const checkedUsernames = visibleCbs.filter(cb => cb.checked).map(cb => cb.value);
+
+            if (checkedUsernames.length === 0) return;
+
+            const confirmMsg = bulkDeleteBtn.dataset.confirmText || 'Удалить выбранных пользователей?';
+            if (!confirm(`${confirmMsg} (${checkedUsernames.length})`)) return;
+
+            try {
+                const res = await fetch('/admin/api/users/delete_bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usernames: checkedUsernames })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Ошибка массового удаления');
+                }
+            } catch (err) {
+                console.error('Error bulk deleting users:', err);
+            }
+        });
+    }
+
+    // ==========================================================================
+    // 5. УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ
     // ==========================================================================
     const createModal = document.getElementById('createModal');
     const editModal = document.getElementById('editModal');

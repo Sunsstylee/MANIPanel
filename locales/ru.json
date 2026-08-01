@@ -64,5 +64,10 @@
     "filter_all_roles": "Все роли",
     "sort_default": "По умолчанию",
     "sort_amount_desc": "Сумма (по убыванию)",
-    "sort_amount_asc": "Сумма (по возрастанию)"
+    "sort_amount_asc": "Сумма (по возрастанию)",
+    "admin_btn_select": "Редактировать",
+    "admin_btn_cancel_select": "Отмена",
+    "admin_bulk_selected": "Выбрано:",
+    "admin_btn_delete_selected": "Удалить выбранные",
+    "confirm_bulk_delete": "Вы уверены, что хотите удалить выбранные аккаунты ({count})?"
 }

@@ -64,5 +64,10 @@
     "filter_all_roles": "All Roles",
     "sort_default": "Default",
     "sort_amount_desc": "Amount (High to Low)",
-    "sort_amount_asc": "Amount (Low to High)"
+    "sort_amount_asc": "Amount (Low to High)",
+    "admin_btn_select": "Select / Edit",
+    "admin_btn_cancel_select": "Cancel",
+    "admin_bulk_selected": "Selected:",
+    "admin_btn_delete_selected": "Delete Selected",
+    "confirm_bulk_delete": "Are you sure you want to delete selected accounts ({count})?"
 }

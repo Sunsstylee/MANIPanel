@@ -5,7 +5,7 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/admin.css') }}">
 
-<div class="admin-container">
+<div class="admin-container" id="adminContainer">
     <!-- Верхняя панель -->
     <div class="admin-top-bar glass-panel">
         <div class="top-bar-left">
@@ -52,10 +52,17 @@
             </div>
         </div>
 
-        <button class="btn-create-user" id="openCreateModalBtn">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            <span>{{ t('admin_btn_create') }}</span>
-        </button>
+        <!-- Кнопки управления -->
+        <div class="top-bar-actions">
+            <button class="btn-select-mode" id="toggleSelectModeBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                <span>{{ t('admin_btn_select') }}</span>
+            </button>
+            <button class="btn-create-user" id="openCreateModalBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <span>{{ t('admin_btn_create') }}</span>
+            </button>
+        </div>
     </div>
 
     <!-- Таблица пользователей -->
@@ -63,6 +70,9 @@
         <table class="admin-table">
             <thead>
                 <tr>
+                    <th class="select-col">
+                        <input type="checkbox" id="selectAllUsers" class="row-checkbox">
+                    </th>
                     <th>{{ t('user_label') }}</th>
                     <th>{{ t('role_label') }}</th>
                     <th>{{ t('status_label') }}</th>
@@ -76,6 +86,9 @@
                     data-username="{{ username | lower }}"
                     data-roles="{{ user.roles | join(',') | lower }}"
                     data-amount="{{ user.balance if user.balance is defined else '0' }}">
+                    <td class="select-col">
+                        <input type="checkbox" class="user-select-cb row-checkbox" value="{{ username }}">
+                    </td>
                     <td class="username-cell">
                         <strong>{{ username }}</strong>
                     </td>
@@ -106,12 +119,24 @@
                 </tr>
                 {% endfor %}
                 <tr id="emptyRow" style="display: none;">
-                    <td colspan="5" class="no-data-cell">
+                    <td colspan="6" class="no-data-cell">
                         {{ t('users_not_found') }}
                     </td>
                 </tr>
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Плавающая нижняя панель для удаления при прокрутке -->
+<div class="bulk-actions-bar" id="bulkActionsBar">
+    <div class="bulk-info">
+        <span id="bulkSelectedText">{{ t('admin_bulk_selected') }}</span>
+        <strong id="bulkSelectedCount">0</strong>
+    </div>
+    <div class="bulk-buttons">
+        <button type="button" class="btn-cancel-select" id="cancelSelectBtn">{{ t('admin_btn_cancel_select') }}</button>
+        <button type="button" class="btn-neon-danger" id="bulkDeleteBtn" data-confirm-text="{{ t('confirm_bulk_delete') }}">{{ t('admin_btn_delete_selected') }}</button>
     </div>
 </div>
 
@@ -145,7 +170,6 @@
                 </div>
             </div>
 
-            <!-- Кастомный статус (Создание) -->
             <div class="input-group" style="margin-top: 16px;">
                 <label class="group-label">{{ t('status_label') }}</label>
                 <div class="custom-dropdown modal-dropdown" id="createStatusDropdown">
@@ -202,7 +226,6 @@
                 </div>
             </div>
 
-            <!-- Кастомный статус (Редактирование) -->
             <div class="input-group" style="margin-top: 16px;">
                 <label class="group-label">{{ t('status_label') }}</label>
                 <div class="custom-dropdown modal-dropdown" id="editStatusDropdown">
@@ -227,5 +250,17 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/admin.js') }}?v=9.4"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}?v=9.5"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var createModal = document.getElementById('createModal');
+        var editModal = document.getElementById('editModal');
+        if (createModal && createModal.parentElement !== document.body) {
+            document.body.appendChild(createModal);
+        }
+        if (editModal && editModal.parentElement !== document.body) {
+            document.body.appendChild(editModal);
+        }
+    });
+</script>
 {% endblock %}

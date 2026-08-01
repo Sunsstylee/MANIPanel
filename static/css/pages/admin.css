@@ -30,6 +30,12 @@
     z-index: 100;
 }
 
+.top-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .search-box {
     position: relative;
     width: 260px;
@@ -133,25 +139,9 @@
     box-sizing: border-box;
 }
 
-/* Скроллбар для выпадающего списка */
-.custom-dropdown-menu::-webkit-scrollbar {
-    width: 5px;
-}
-
-.custom-dropdown-menu::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 10px;
-}
-
-.custom-dropdown-menu::-webkit-scrollbar-thumb {
-    background: #00f0ff;
-    border-radius: 10px;
-    box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
-}
-
-.custom-dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background: #52f6ff;
-}
+.custom-dropdown-menu::-webkit-scrollbar { width: 5px; }
+.custom-dropdown-menu::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); border-radius: 10px; }
+.custom-dropdown-menu::-webkit-scrollbar-thumb { background: #00f0ff; border-radius: 10px; box-shadow: 0 0 8px rgba(0, 240, 255, 0.5); }
 
 .custom-dropdown.active .custom-dropdown-menu {
     display: block;
@@ -178,14 +168,9 @@
 }
 
 .dropdown-item:hover,
-.dropdown-item.status-option.active {
-    background: rgba(0, 240, 255, 0.18);
-    color: #00f0ff;
-    font-weight: 600;
-}
-
+.dropdown-item.status-option.active,
 .dropdown-item.sort-option.active {
-    background: rgba(0, 240, 255, 0.2);
+    background: rgba(0, 240, 255, 0.18);
     color: #00f0ff;
     font-weight: 600;
 }
@@ -203,6 +188,39 @@
     cursor: pointer;
     margin: 0;
     flex-shrink: 0;
+}
+
+/* Кнопка Редактировать / Выбрать */
+.btn-select-mode {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 46px;
+    padding: 0 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #d1d8e0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-select-mode:hover,
+.btn-select-mode.active {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: #00f0ff;
+    color: #00f0ff;
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.25);
+}
+
+.btn-select-mode svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
 }
 
 /* Кнопка создания */
@@ -251,6 +269,27 @@
     text-align: left;
 }
 
+/* Столбец для выборных чекбоксов */
+.select-col {
+    width: 44px;
+    padding-left: 20px !important;
+    padding-right: 0 !important;
+    display: none;
+}
+
+.selection-mode .select-col {
+    display: table-cell;
+}
+
+.row-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #00f0ff;
+    cursor: pointer;
+    margin: 0;
+    vertical-align: middle;
+}
+
 .admin-table th {
     padding: 18px 24px;
     font-size: 11px;
@@ -273,6 +312,10 @@
     font-size: 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     vertical-align: middle;
+}
+
+.user-row.selected-row {
+    background: rgba(0, 240, 255, 0.05);
 }
 
 .user-row.hidden-row {
@@ -349,8 +392,6 @@
     width: 22px;
     height: 22px;
     fill: currentColor;
-    display: block;
-    flex-shrink: 0;
 }
 
 .no-data-cell {
@@ -360,15 +401,80 @@
     font-size: 14px;
 }
 
+/* Липкая плавающая панель массовых действий */
+.bulk-actions-bar {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 12px 24px;
+    background: rgba(13, 19, 29, 0.92);
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    border-radius: 14px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 20px rgba(0, 240, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    min-width: 320px;
+}
+
+.bulk-actions-bar.active {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: all;
+}
+
+.bulk-info {
+    font-size: 14px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bulk-info strong {
+    color: #00f0ff;
+    font-size: 16px;
+}
+
+.bulk-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-cancel-select {
+    height: 40px;
+    padding: 0 18px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #d1d8e0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel-select:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
 /* Модальные окна */
 .modal-backdrop {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.82);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -380,7 +486,9 @@
     pointer-events: none;
     transition: opacity 0.25s ease, visibility 0.25s ease;
     visibility: hidden;
+    padding: 20px;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .modal-backdrop.active {
@@ -400,7 +508,6 @@
     background: #0d131d;
     box-sizing: border-box;
     position: relative;
-    overflow: visible;
 }
 
 .modal-header {
@@ -423,12 +530,9 @@
     color: #8a99ad;
     font-size: 24px;
     cursor: pointer;
-    line-height: 1;
 }
 
-.modal-close:hover {
-    color: #ffffff;
-}
+.modal-close:hover { color: #ffffff; }
 
 .input-group {
     margin-bottom: 16px;
@@ -470,9 +574,7 @@
     box-shadow: 0 0 12px rgba(255, 71, 87, 0.4) !important;
 }
 
-.error-container {
-    margin-bottom: 16px;
-}
+.error-container { margin-bottom: 16px; }
 
 .error-msg {
     background: rgba(255, 71, 87, 0.12);
@@ -483,25 +585,11 @@
     font-size: 13px;
     font-weight: 500;
     text-align: center;
-    box-shadow: 0 0 12px rgba(255, 71, 87, 0.2);
 }
 
-/* Дропдаун статуса внутри модалок */
-.modal-dropdown {
-    width: 100%;
-    min-width: 100%;
-    position: relative;
-}
-
-.modal-dropdown .custom-dropdown-btn {
-    height: 44px;
-    padding: 0 14px;
-}
-
-.modal-dropdown .custom-dropdown-menu {
-    width: 100%;
-    min-width: 100%;
-}
+.modal-dropdown { width: 100%; min-width: 100%; }
+.modal-dropdown .custom-dropdown-btn { height: 44px; padding: 0 14px; }
+.modal-dropdown .custom-dropdown-menu { width: 100%; min-width: 100%; }
 
 .checkbox-grid {
     display: grid;
@@ -529,23 +617,12 @@
     accent-color: #00f0ff;
     cursor: pointer;
     margin: 0;
-    flex-shrink: 0;
 }
 
-.custom-checkbox .checkmark {
-    display: none;
-}
+.custom-checkbox .checkmark { display: none; }
 
-.modal-footer {
-    margin-top: 24px;
-}
-
-.flex-between {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-}
+.modal-footer { margin-top: 24px; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 
 .btn-neon {
     width: 100%;
@@ -566,15 +643,15 @@
 }
 
 .btn-neon-danger {
-    height: 44px;
-    padding: 0 20px;
+    height: 40px;
+    padding: 0 18px;
     background: rgba(255, 71, 87, 0.12);
     border: 1px solid #ff4757;
     color: #ff4757;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
@@ -583,6 +660,5 @@
 
 .btn-neon-danger:hover {
     background: rgba(255, 71, 87, 0.26);
-    border-color: #ff4757;
     box-shadow: 0 0 14px rgba(255, 71, 87, 0.4);
 }
