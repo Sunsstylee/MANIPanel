@@ -1,5 +1,5 @@
 {
-    "login_title": "MANILogin",
+    "login_title": "Авторизация MANIPanel",
     "login_header": "Авторизация",
     "login_subtitle": "Введите данные чтобы войти",
     "username_placeholder": "Логин",
@@ -69,5 +69,15 @@
     "admin_btn_cancel_select": "Отмена",
     "admin_bulk_selected": "Выбрано:",
     "admin_btn_delete_selected": "Удалить выбранные",
-    "confirm_bulk_delete": "Вы уверены, что хотите удалить выбранные аккаунты ({count})?"
+    "confirm_bulk_delete": "Вы уверены, что хотите удалить выбранные аккаунты ({count})?",
+    "site_closed_badge": "Технические работы",
+    "site_closed_title": "Ведутся технические работы",
+    "site_closed_desc": "Мы обновляем систему и повышаем стабильность. Доступ к панели временно ограничен.",
+    "system_control_title": "Управление сайтом",
+    "site_closed_toggle": "Закрыть сайт для пользователей",
+    "page_permissions_title": "Доступ к разделам",
+    "access_denied_title": "Доступ ограничен",
+    "access_denied_desc": "У вашей роли нет прав для просмотра этого раздела.",
+    "save_settings_btn": "Сохранить настройки",
+    "btn_back_login": "Перейти к авторизации"
 }

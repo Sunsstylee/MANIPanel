@@ -1,15 +1,22 @@
 <header class="navbar">
-    <!-- Левый блок (для баланса сетки) -->
+    <!-- Левый блок (Статус сервера) -->
     <div class="nav-left">
-        <div class="nav-status-badge">
-            <span class="status-pulse"></span>
-            <span class="status-text">ONLINE</span>
-        </div>
+        {% if site_settings and site_settings.site_closed %}
+            <div class="nav-status-badge offline">
+                <span class="status-pulse"></span>
+                <span class="status-text">OFFLINE</span>
+            </div>
+        {% else %}
+            <div class="nav-status-badge">
+                <span class="status-pulse"></span>
+                <span class="status-text">ONLINE</span>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Текст РОВНО ПО ЦЕНТРУ -->
     <div class="nav-center">
-        <a href="{{ url_for('index') }}" class="nav-brand">
+        <a href="{{ url_for('auth.dashboard') }}" class="nav-brand">
             <div class="nav-brand-dot"></div>
             <span class="brand-text">MANIPanel</span>
         </a>

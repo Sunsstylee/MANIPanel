@@ -1,34 +1,47 @@
 <aside class="sidebar glass-panel">
+    <!-- Шапка сайдбара -->
+    <div class="sidebar-header flex-between">
+        <div class="sidebar-brand">
+            <span class="brand-dot"></span>
+            <strong>MANIPanel</strong>
+        </div>
+
+        {% if is_top_admin %}
+        <!-- Неоновая кнопка управления сайтом -->
+        <button type="button" class="btn-top-admin-control" id="openSystemControlBtn" title="{{ t('system_control_title') }}">
+            <svg class="icon-gear" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+        </button>
+        {% endif %}
+    </div>
+
     <!-- Навигационное меню -->
     <nav class="sidebar-nav">
-        <!-- Главная (Дашборд) -->
         <a href="{{ url_for('auth.dashboard') }}" class="sidebar-link {% if request.endpoint == 'auth.dashboard' %}active{% endif %}">
             <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>
             <span>{{ t('nav_dashboard') }}</span>
         </a>
 
-        <!-- Логи -->
         <a href="{{ url_for('auth.logs') }}" class="sidebar-link {% if request.endpoint == 'auth.logs' %}active{% endif %}">
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2zm0-4H7V7h10v2zm-4 8H7v-2h6v2z"/></svg>
             <span>{{ t('nav_logs') }}</span>
             <span class="badge-soon">{{ t('badge_soon') }}</span>
         </a>
 
-        <!-- Действия -->
         <a href="{{ url_for('auth.actions') }}" class="sidebar-link {% if request.endpoint == 'auth.actions' %}active{% endif %}">
             <svg viewBox="0 0 24 24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
             <span>{{ t('nav_actions') }}</span>
             <span class="badge-soon">{{ t('badge_soon') }}</span>
         </a>
 
-        <!-- Подмены -->
         <a href="{{ url_for('auth.replacements') }}" class="sidebar-link {% if request.endpoint == 'auth.replacements' %}active{% endif %}">
             <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
             <span>{{ t('nav_replacements') }}</span>
             <span class="badge-soon">{{ t('badge_soon') }}</span>
         </a>
 
-        <!-- Админ Панель -->
         <a href="{{ url_for('admin.admin_panel') }}" class="sidebar-link {% if request.endpoint == 'admin.admin_panel' or request.endpoint == 'auth.admin_panel' %}active{% endif %}">
             <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
             <span>{{ t('nav_admin') }}</span>
@@ -40,15 +53,15 @@
         <div class="sidebar-stats-box">
             <div class="sidebar-stat-row">
                 <span class="stat-name">{{ t('stat_users') }}</span>
-                <span class="stat-value-num">{{ sidebar_stats.users_count }}</span>
+                <span class="stat-value-num">{{ sidebar_stats.users_count if sidebar_stats else 0 }}</span>
             </div>
             <div class="sidebar-stat-row">
                 <span class="stat-name">{{ t('stat_logs') }}</span>
-                <span class="stat-value-num">{{ sidebar_stats.total_logs }}</span>
+                <span class="stat-value-num">{{ sidebar_stats.total_logs if sidebar_stats else 0 }}</span>
             </div>
             <div class="sidebar-stat-row active-usd-row">
                 <span class="stat-name">{{ t('stat_active_sum') }}</span>
-                <span class="stat-value-usd">${{ sidebar_stats.active_usd }}</span>
+                <span class="stat-value-usd">${{ sidebar_stats.active_usd if sidebar_stats else '0.00' }}</span>
             </div>
         </div>
 
@@ -60,3 +73,54 @@
         </a>
     </div>
 </aside>
+
+{% if is_top_admin %}
+<!-- Передача локализации категорий в JS -->
+<script>
+    window.NAV_TRANSLATIONS = {
+        dashboard: "{{ t('nav_dashboard') }}",
+        logs: "{{ t('nav_logs') }}",
+        actions: "{{ t('nav_actions') }}",
+        replacements: "{{ t('nav_replacements') }}",
+        admin: "{{ t('nav_admin') }}"
+    };
+</script>
+
+<!-- МОДАЛЬНОЕ ОКНО УПРАВЛЕНИЯ САЙТОМ -->
+<div class="modal-backdrop" id="systemControlModal">
+    <div class="modal-card system-modal-card">
+        <div class="modal-header">
+            <div class="modal-header-title">
+                <svg class="modal-title-gear" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <h3>{{ t('system_control_title') }}</h3>
+            </div>
+            <button class="modal-close" id="closeSystemControlModal">&times;</button>
+        </div>
+
+        <form id="systemControlForm">
+            <!-- Переключатель закрытия сайта -->
+            <div class="system-toggle-box">
+                <label class="switch-container">
+                    <input type="checkbox" id="siteClosedToggle" {% if site_settings and site_settings.site_closed %}checked{% endif %}>
+                    <span class="switch-slider"></span>
+                </label>
+                <span class="toggle-title">{{ t('site_closed_toggle') }}</span>
+            </div>
+
+            <hr class="modal-divider">
+
+            <h4 class="perm-section-title">{{ t('page_permissions_title') }}</h4>
+            
+            <!-- Матрица сгенерируется динамически через system_control.js -->
+            <div class="permissions-matrix" id="permissionsMatrix"></div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn-save-neon">{{ t('save_settings_btn') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}

@@ -3,6 +3,48 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_FILE = os.path.join(BASE_DIR, "users.json")
+SETTINGS_FILE = os.path.join(BASE_DIR, "settings.json")
+
+# Верховные роли управления сайтом (в нижнем регистре для сравнения)
+TOP_ROLES = ["owner", "co-owner", "developer"]
+
+# ==========================================
+# РАБОТА С НАСТРОЙКАМИ САЙТА
+# ==========================================
+
+DEFAULT_SETTINGS = {
+    "site_closed": False,
+    "page_permissions": {
+        "dashboard": ["Owner", "Co-Owner", "Developer", "Administrator", "Moderator", "Speaker", "Dobiver", "User"],
+        "admin": ["Owner", "Co-Owner", "Developer", "Administrator"],
+        "logs": ["Owner", "Co-Owner", "Developer"],
+        "actions": ["Owner", "Co-Owner", "Developer"],
+        "replacements": ["Owner", "Co-Owner", "Developer"]
+    }
+}
+
+def load_settings():
+    if not os.path.exists(SETTINGS_FILE):
+        save_settings(DEFAULT_SETTINGS)
+        return DEFAULT_SETTINGS
+    with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+        try:
+            settings = json.load(f)
+            if "site_closed" not in settings:
+                settings["site_closed"] = False
+            if "page_permissions" not in settings:
+                settings["page_permissions"] = DEFAULT_SETTINGS["page_permissions"]
+            return settings
+        except json.JSONDecodeError:
+            return DEFAULT_SETTINGS
+
+def save_settings(settings):
+    with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+        json.dump(settings, f, indent=4, ensure_ascii=False)
+
+# ==========================================
+# РАБОТА С ПОЛЬЗОВАТЕЛЯМИ
+# ==========================================
 
 def load_users():
     if not os.path.exists(USERS_FILE):
@@ -21,7 +63,7 @@ def normalize_user_data(username, raw_data):
     if isinstance(raw_data, str):
         return {
             "password": raw_data,
-            "roles": ["Administrator"] if username == "admin" else ["User"],
+            "roles": ["Administrator"] if username.lower() == "admin" else ["User"],
             "status": "Beginner"
         }
     
@@ -57,11 +99,25 @@ def verify_user(username, password):
         return user_data == password
     return user_data.get("password") == password
 
-def get_user_role(username):
+def get_user_roles(username):
     users = load_users()
     user_data = users.get(username)
+    if not user_data:
+        return ["User"]
     norm = normalize_user_data(username, user_data)
-    return norm["roles"][0] if norm["roles"] else "User"
+    return norm.get("roles", ["User"])
+
+def is_top_admin(username):
+    """Проверяет, имеет ли пользователь одну из главных ролей (Owner, Co-Owner, Developer) без учета регистра."""
+    if not username:
+        return False
+    roles = get_user_roles(username)
+    user_roles_lower = [str(r).strip().lower() for r in roles]
+    return any(r in TOP_ROLES for r in user_roles_lower)
+
+def get_user_role(username):
+    roles = get_user_roles(username)
+    return roles[0] if roles else "User"
 
 def get_user_status(username):
     users = load_users()

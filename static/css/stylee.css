@@ -37,7 +37,7 @@ body {
 }
 
 /* ==========================================================================
-   АНИМАЦИИ ПЕРЕХОДА И ПОЯВЛЕНИЯ СТРАНИЦ (PREMIUM ENTER / EXIT)
+   АНИМАЦИИ ПЕРЕХОДА И ПОЯВЛЕНИЯ СТРАНИЦ
    ========================================================================== */
 .main-page-content {
     animation: pageEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -112,6 +112,7 @@ body {
     border: 1px solid rgba(0, 194, 255, 0.2);
     padding: 5px 12px;
     border-radius: 20px;
+    transition: all 0.3s ease;
 }
 
 .status-pulse {
@@ -121,6 +122,7 @@ body {
     border-radius: 50%;
     box-shadow: 0 0 8px #22c55e;
     animation: statusPulse 2s infinite;
+    transition: all 0.3s ease;
 }
 
 @keyframes statusPulse {
@@ -133,6 +135,22 @@ body {
     font-weight: 700;
     color: var(--text-muted);
     letter-spacing: 1px;
+    transition: color 0.3s ease;
+}
+
+/* Стили для статуса OFFLINE (Технические работы) */
+.nav-status-badge.offline {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.nav-status-badge.offline .status-pulse {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+}
+
+.nav-status-badge.offline .status-text {
+    color: #fca5a5;
 }
 
 .nav-center {
@@ -261,7 +279,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     position: sticky;
-    top: 96px; /* Идеальное совпадение: 16px top шапки + 60px высота + 20px padding у wrapper */
+    top: 96px;
     height: calc(100vh - 120px);
     max-height: calc(100vh - 120px);
     overflow-y: auto;
@@ -432,6 +450,18 @@ body {
     min-width: 0;
     display: flex;
     flex-direction: column;
+    position: relative;
+    border-radius: 14px;
+}
+
+.content-area.has-denied-overlay {
+    overflow: hidden; /* Перекрываем вылезающий блюр по бокам */
+}
+
+.page-inner-content {
+    width: 100%;
+    min-height: 100%;
+    transition: filter 0.3s ease, opacity 0.3s ease;
 }
 
 /* ==========================================================================
@@ -448,7 +478,75 @@ body {
 }
 
 /* ==========================================================================
-   ДАШБОРД (КАСКАДНАЯ АНИМАЦИЯ КАРТОЧЕК)
+   ОГРАНИЧЕНИЕ ДОСТУПА (ACCESS DENIED OVERLAY)
+   ========================================================================== */
+.access-denied-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 7, 17, 0.75);
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.access-denied-card {
+    width: 100%;
+    max-width: 440px;
+    padding: 36px 30px;
+    text-align: center;
+    border: 1px solid rgba(0, 194, 255, 0.35) !important;
+    box-shadow: 0 0 30px rgba(0, 194, 255, 0.15), inset 0 0 15px rgba(0, 194, 255, 0.05);
+    animation: cardPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.denied-icon-badge {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background: rgba(0, 194, 255, 0.08);
+    border: 1px solid var(--neon-color);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px var(--neon-glow);
+}
+
+.denied-icon-badge svg {
+    width: 30px;
+    height: 30px;
+    color: var(--neon-color);
+}
+
+.access-denied-card h2 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.access-denied-card p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.blurred-content {
+    filter: blur(8px) brightness(0.4);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* ==========================================================================
+   ДАШБОРД
    ========================================================================== */
 .dashboard-container {
     width: 100%;

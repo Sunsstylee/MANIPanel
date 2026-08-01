@@ -1,0 +1,50 @@
+{
+    "site_closed": false,
+    "page_permissions": {
+        "dashboard": [
+            "Owner",
+            "Co-Owner",
+            "Developer",
+            "Administrator",
+            "Moderator",
+            "Speaker",
+            "Dobiver",
+            "User"
+        ],
+        "logs": [
+            "Owner",
+            "Co-Owner",
+            "Developer",
+            "Administrator",
+            "Moderator",
+            "Speaker",
+            "Dobiver",
+            "User"
+        ],
+        "actions": [
+            "Owner",
+            "Co-Owner",
+            "Developer",
+            "Administrator",
+            "Moderator",
+            "Speaker",
+            "Dobiver",
+            "User"
+        ],
+        "replacements": [
+            "Owner",
+            "Co-Owner",
+            "Developer",
+            "Administrator",
+            "Moderator",
+            "Speaker",
+            "Dobiver",
+            "User"
+        ],
+        "admin": [
+            "Owner",
+            "Co-Owner",
+            "Developer"
+        ]
+    }
+}

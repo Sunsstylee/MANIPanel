@@ -1,10 +1,14 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
-from database.database import get_all_users, add_user, update_user, delete_user, get_users_count
+from database.database import (
+    get_all_users, add_user, update_user, delete_user, get_users_count,
+    load_settings, save_settings, is_top_admin, get_user_roles, TOP_ROLES
+)
 from locales.i18n import t
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-VALID_ROLES = ["Owner", "Developer", "Administrator", "Moderator", "Speaker", "Dobiver", "User"]
+# Единый список всех ролей сайта
+VALID_ROLES = ["Owner", "Co-Owner", "Developer", "Administrator", "Moderator", "Speaker", "Dobiver", "User"]
 VALID_STATUSES = ["Beginner", "Worker", "Pro"]
 
 @admin_bp.route('/')
@@ -12,7 +16,21 @@ def admin_panel():
     if 'username' not in session:
         return redirect(url_for('auth.login'))
     
+    current_username = session.get('username')
     users = get_all_users()
+    settings = load_settings()
+    
+    user_roles = get_user_roles(current_username)
+    if isinstance(user_roles, str):
+        user_roles = [user_roles]
+        
+    user_roles_lower = [r.lower() for r in user_roles]
+    is_top = is_top_admin(current_username)
+    
+    allowed_roles = settings.get('page_permissions', {}).get('admin', [])
+    allowed_roles_lower = [r.lower() for r in allowed_roles]
+    
+    has_permission = is_top or any(r in allowed_roles_lower for r in user_roles_lower)
     
     sidebar_stats = {
         "users_count": len(users),
@@ -26,7 +44,10 @@ def admin_panel():
                            sidebar_stats=sidebar_stats, 
                            t=lambda key: t(key, lang),
                            roles=VALID_ROLES,
-                           statuses=VALID_STATUSES)
+                           statuses=VALID_STATUSES,
+                           is_top_admin=is_top,
+                           has_permission=has_permission,
+                           site_settings=settings)
 
 @admin_bp.route('/api/users', methods=['GET'])
 def api_get_users():
@@ -39,8 +60,8 @@ def api_get_users():
     for username, data in users.items():
         result.append({
             "username": username,
-            "roles": data["roles"],
-            "status": data["status"]
+            "roles": data.get("roles", []),
+            "status": data.get("status", "Beginner")
         })
         
     return jsonify({"users": result})
@@ -150,3 +171,35 @@ def api_delete_users_bulk():
         return jsonify({'success': True, 'count': deleted_count, 'errors': errors})
     
     return jsonify({'success': False, 'message': errors[0] if errors else t('err_user_not_specified', lang)}), 400
+
+# ==========================================
+# API ДЛЯ УПРАВЛЕНИЯ САЙТОМ (ТОЛЬКО ДЛЯ TOP_ROLES)
+# ==========================================
+
+@admin_bp.route('/api/settings', methods=['GET'])
+def api_get_settings():
+    if 'username' not in session or not is_top_admin(session['username']):
+        return jsonify({'error': 'Forbidden'}), 403
+    
+    settings = load_settings()
+    return jsonify({
+        'settings': settings,
+        'valid_roles': VALID_ROLES
+    })
+
+@admin_bp.route('/api/settings', methods=['POST'])
+def api_update_settings():
+    if 'username' not in session or not is_top_admin(session['username']):
+        return jsonify({'error': 'Forbidden'}), 403
+        
+    data = request.get_json() or {}
+    settings = load_settings()
+
+    if 'site_closed' in data:
+        settings['site_closed'] = bool(data['site_closed'])
+        
+    if 'page_permissions' in data and isinstance(data['page_permissions'], dict):
+        settings['page_permissions'] = data['page_permissions']
+
+    save_settings(settings)
+    return jsonify({'success': True, 'settings': settings})

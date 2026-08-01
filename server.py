@@ -1,17 +1,68 @@
-from flask import Flask, redirect, url_for, session, request
+from flask import Flask, redirect, url_for, session, request, render_template
 from routes.auth import auth_bp
-from routes.admin import admin_bp
+from routes.admin import admin_bp, VALID_ROLES
 from locales.i18n import t
+from database.database import load_settings, is_top_admin, get_user_roles
 
 app = Flask(__name__)
 app.secret_key = "mani_super_secret_key"
 
+# Карта соответствия роутов и разделов сайта
+ROUTE_PAGE_MAP = {
+    'auth.dashboard': 'dashboard',
+    'admin.admin_panel': 'admin',
+    'auth.logs': 'logs',
+    'auth.actions': 'actions',
+    'auth.replacements': 'replacements'
+}
+
 @app.context_processor
-def inject_i18n():
-    def translate(key):
+def inject_globals():
+    lang = session.get('lang', 'ru')
+    username = session.get('username')
+    top_admin = is_top_admin(username) if username else False
+    
+    settings = load_settings()
+    perms = settings.get('page_permissions', {})
+    
+    # Проверка прав на текущую страницу
+    access_denied = False
+    if username and not top_admin:
+        page_key = ROUTE_PAGE_MAP.get(request.endpoint)
+        if page_key and page_key in perms:
+            user_roles = get_user_roles(username)
+            allowed_roles = perms[page_key]
+            if not any(r in allowed_roles for r in user_roles):
+                access_denied = True
+
+    return dict(
+        t=lambda key: t(key, lang),
+        is_top_admin=top_admin,
+        access_denied=access_denied,
+        site_settings=settings,
+        all_roles=VALID_ROLES
+    )
+
+@app.before_request
+def check_site_status():
+    if request.path.startswith('/static') or request.path.startswith('/set_lang'):
+        return None
+
+    settings = load_settings()
+    
+    if settings.get('site_closed', False):
+        current_user = session.get('username')
+        
+        if current_user and is_top_admin(current_user):
+            return None
+        
+        if request.endpoint in ['auth.login', 'auth.logout']:
+            if request.endpoint == 'auth.login' and current_user and not is_top_admin(current_user):
+                session.clear()
+            return None
+        
         lang = session.get('lang', 'ru')
-        return t(key, lang)
-    return dict(t=translate)
+        return render_template('site_closed.html', t=lambda key: t(key, lang)), 503
 
 @app.route('/set_lang/<lang>')
 def set_language(lang):

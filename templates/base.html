@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ t('dashboard_title') }}</title>
+    <title>{% block title %}{{ t('site_name') }}{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/stylee.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/system_control.css') }}">
+    
     {% if request.endpoint == 'auth.login' %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/login.css') }}">
     {% endif %}
@@ -15,18 +19,36 @@
         {% include 'components/header.html' %}
         <div class="layout-wrapper">
             {% include 'components/sidebar.html' %}
-            <main class="content-area main-page-content">
+            <main class="content-area main-page-content {% if access_denied %}has-denied-overlay{% endif %}">
+                {% if access_denied %}
+                    <!-- Всплывающая карточка ограничения доступа в стиле сайта -->
+                    <div class="access-denied-overlay">
+                        <div class="access-denied-card glass-panel">
+                            <div class="denied-icon-badge">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 10V8C6 4.68629 8.68629 2 12 2C15.3137 2 18 4.68629 18 8V10M6 10H5C3.89543 10 3 10.8954 3 12V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V12C21 10.8954 20.1046 10 19 10H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <h2>{{ t('access_denied_title') }}</h2>
+                            <p>{{ t('access_denied_desc') }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Область контента с размытием -->
+                <div class="page-inner-content {% if access_denied %}blurred-content{% endif %}">
     {% else %}
-            <main class="main-page-content">
+        <main class="main-page-content">
     {% endif %}
 
-        {% block content %}{% endblock %}
+            {% block content %}{% endblock %}
 
     {% if request.endpoint != 'auth.login' %}
+                </div>
             </main>
         </div>
     {% else %}
-            </main>
+        </main>
     {% endif %}
 
     <script>
@@ -52,6 +74,10 @@
             });
         });
     </script>
+
+    {% if is_top_admin %}
+        <script src="{{ url_for('static', filename='js/system_control.js') }}"></script>
+    {% endif %}
 
     {% block scripts %}{% endblock %}
 </body>

@@ -1,5 +1,5 @@
 {
-    "login_title": "MANILogin",
+    "login_title": "Authorization MANIPanel",
     "login_header": "Authorization",
     "login_subtitle": "Enter your details to login",
     "username_placeholder": "Username",
@@ -69,5 +69,15 @@
     "admin_btn_cancel_select": "Cancel",
     "admin_bulk_selected": "Selected:",
     "admin_btn_delete_selected": "Delete Selected",
-    "confirm_bulk_delete": "Are you sure you want to delete selected accounts ({count})?"
+    "confirm_bulk_delete": "Are you sure you want to delete selected accounts ({count})?",
+    "site_closed_badge": "Under Maintenance",
+    "site_closed_title": "Under Maintenance",
+    "site_closed_desc": "Scheduled maintenance is currently in progress. Access is restricted by administration.",
+    "system_control_title": "Site Management",
+    "site_closed_toggle": "Close site for users",
+    "page_permissions_title": "Section Permissions",
+    "access_denied_title": "Access Denied",
+    "access_denied_desc": "Your role does not have permission to view this section.",
+    "save_settings_btn": "Save Settings",
+    "btn_back_login": "Back to Login"
 }

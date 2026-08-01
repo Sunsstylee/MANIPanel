@@ -280,8 +280,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (checkedUsernames.length === 0) return;
 
-            const confirmMsg = bulkDeleteBtn.dataset.confirmText || 'Удалить выбранных пользователей?';
-            if (!confirm(`${confirmMsg} (${checkedUsernames.length})`)) return;
+            const rawText = bulkDeleteBtn.getAttribute('data-confirm-text') || 'Удалить выбранных пользователей ({count})?';
+            let confirmText = rawText;
+            if (confirmText.includes('{count}')) {
+                confirmText = confirmText.replace('{count}', checkedUsernames.length);
+            } else {
+                confirmText = confirmText + ` (${checkedUsernames.length})`;
+            }
+
+            if (!confirm(confirmText)) return;
 
             try {
                 const res = await fetch('/admin/api/users/delete_bulk', {
