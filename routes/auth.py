@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from database.database import verify_user, get_user_role, get_users_count
+from database.database import verify_user, get_user_role, get_user_status, get_users_count
 from locales.i18n import t
 from functools import wraps
 
@@ -25,7 +25,6 @@ def inject_sidebar_stats():
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    # Сохраняем язык из query-параметра ?lang=ru или ?lang=en в сессию
     lang_param = request.args.get('lang')
     if lang_param in ['ru', 'en']:
         session['lang'] = lang_param
@@ -55,7 +54,8 @@ def login():
 def dashboard():
     username = session.get('username')
     role = get_user_role(username)
-    return render_template('auth/dashboard.html', username=username, role=role)
+    status = get_user_status(username)
+    return render_template('auth/dashboard.html', username=username, role=role, status=status)
 
 @auth_bp.route('/logs')
 @login_required

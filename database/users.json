@@ -9,6 +9,13 @@
     "Sunix": {
         "password": "2711",
         "roles": [
+            "Developer"
+        ],
+        "status": "Pro"
+    },
+    "MANI": {
+        "password": "12345",
+        "roles": [
             "Owner"
         ],
         "status": "Pro"

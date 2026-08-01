@@ -60,5 +60,9 @@
     "err_user_not_found": "User not found!",
     "msg_account_created": "Account successfully created",
     "msg_account_updated": "Account details successfully updated",
-    "msg_user_deleted": "User successfully deleted"
+    "msg_user_deleted": "User successfully deleted",
+    "filter_all_roles": "All Roles",
+    "sort_default": "Default",
+    "sort_amount_desc": "Amount (High to Low)",
+    "sort_amount_asc": "Amount (Low to High)"
 }

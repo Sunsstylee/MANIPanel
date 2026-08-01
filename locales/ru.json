@@ -60,5 +60,9 @@
     "err_user_not_found": "Пользователь не найден!",
     "msg_account_created": "Аккаунт успешно создан",
     "msg_account_updated": "Данные аккаунта обновлены",
-    "msg_user_deleted": "Пользователь удален"
+    "msg_user_deleted": "Пользователь удален",
+    "filter_all_roles": "Все роли",
+    "sort_default": "По умолчанию",
+    "sort_amount_desc": "Сумма (по убыванию)",
+    "sort_amount_asc": "Сумма (по возрастанию)"
 }

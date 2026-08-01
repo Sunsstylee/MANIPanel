@@ -1,36 +1,165 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
-    // 1. ЖИВОЙ ПОИСК ПО ТАБЛИЦЕ
+    // 1. ИНИЦИАЛИЗАЦИЯ И УПРАВЛЕНИЕ КАСТОМНЫМИ ВЫПАДАЮЩИМИ СПИСКАМИ (DROPDOWNS)
     // ==========================================================================
-    const searchInput = document.getElementById('userSearchInput');
-    const userRows = document.querySelectorAll('.user-row');
-    const emptyRow = document.getElementById('emptyRow');
+    const roleDropdown = document.getElementById('roleDropdown');
+    const roleDropdownBtn = document.getElementById('roleDropdownBtn');
+    const roleDropdownLabel = document.getElementById('roleDropdownLabel');
+    const selectAllRoles = document.getElementById('selectAllRoles');
+    const roleFilterCbs = Array.from(document.querySelectorAll('.role-filter-cb'));
 
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            let visibleCount = 0;
+    const sortDropdown = document.getElementById('sortDropdown');
+    const sortDropdownBtn = document.getElementById('sortDropdownBtn');
+    const sortDropdownLabel = document.getElementById('sortDropdownLabel');
+    const sortOptions = document.querySelectorAll('.sort-option');
 
-            userRows.forEach(row => {
-                const username = row.getAttribute('data-username') || '';
-                if (username.includes(query)) {
-                    row.style.display = '';
-                    row.classList.remove('hidden-row');
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                    row.classList.add('hidden-row');
-                }
-            });
+    let activeSortValue = 'default';
 
-            if (emptyRow) {
-                emptyRow.style.display = (visibleCount === 0) ? '' : 'none';
-            }
+    // Открытие/закрытие списка ролей
+    if (roleDropdownBtn && roleDropdown) {
+        roleDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sortDropdown?.classList.remove('active');
+            roleDropdown.classList.toggle('active');
+        });
+    }
+
+    // Открытие/закрытие списка сортировки
+    if (sortDropdownBtn && sortDropdown) {
+        sortDropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            roleDropdown?.classList.remove('active');
+            sortDropdown.classList.toggle('active');
+        });
+    }
+
+    // Закрытие всех выпадающих списков при клике вне их области
+    document.addEventListener('click', () => {
+        roleDropdown?.classList.remove('active');
+        sortDropdown?.classList.remove('active');
+    });
+
+    // Предотвращаем закрытие списка ролей при клике внутри меню
+    const roleDropdownMenu = document.getElementById('roleDropdownMenu');
+    if (roleDropdownMenu) {
+        roleDropdownMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
     }
 
     // ==========================================================================
-    // 2. УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ И СБРОС ОШИБОК
+    // 2. ЛОГИКА МУЛЬТИ-СЕЛЕКТА РОЛЕЙ И СОРТИРОВКИ
+    // ==========================================================================
+    
+    // Переключение пункта "Все роли"
+    if (selectAllRoles) {
+        selectAllRoles.addEventListener('change', () => {
+            if (selectAllRoles.checked) {
+                roleFilterCbs.forEach(cb => cb.checked = false);
+            }
+            updateRoleLabel();
+            updateTable();
+        });
+    }
+
+    // Переключение отдельных чекбоксов ролей
+    roleFilterCbs.forEach(cb => {
+        cb.addEventListener('change', () => {
+            const anyChecked = roleFilterCbs.some(c => c.checked);
+            if (anyChecked) {
+                if (selectAllRoles) selectAllRoles.checked = false;
+            } else {
+                if (selectAllRoles) selectAllRoles.checked = true;
+            }
+            updateRoleLabel();
+            updateTable();
+        });
+    });
+
+    // Обновление заголовка кнопки фильтра ролей
+    function updateRoleLabel() {
+        const checkedCbs = roleFilterCbs.filter(c => c.checked);
+        const allText = roleDropdownLabel.getAttribute('data-text-all') || 'Все роли';
+
+        if (!selectAllRoles || selectAllRoles.checked || checkedCbs.length === 0) {
+            roleDropdownLabel.textContent = allText;
+        } else if (checkedCbs.length === 1) {
+            const spanText = checkedCbs[0].nextElementSibling.textContent;
+            roleDropdownLabel.textContent = spanText;
+        } else {
+            roleDropdownLabel.textContent = `${allText} (${checkedCbs.length})`;
+        }
+    }
+
+    // Выбор опции сортировки
+    sortOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            sortOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+
+            activeSortValue = option.getAttribute('data-value');
+            sortDropdownLabel.textContent = option.textContent;
+            sortDropdown.classList.remove('active');
+
+            updateTable();
+        });
+    });
+
+    // ==========================================================================
+    // 3. ЖИВОЙ ПОИСК, ФИЛЬТРАЦИЯ И СОРТИРОВКА ТАБЛИЦЫ
+    // ==========================================================================
+    const searchInput = document.getElementById('userSearchInput');
+    const tableBody = document.getElementById('usersTableBody');
+    const userRows = Array.from(document.querySelectorAll('.user-row'));
+    const emptyRow = document.getElementById('emptyRow');
+
+    function updateTable() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const selectedRoles = roleFilterCbs.filter(c => c.checked).map(c => c.value);
+        const isAllRoles = !selectAllRoles || selectAllRoles.checked || selectedRoles.length === 0;
+
+        let visibleRows = [];
+
+        userRows.forEach(row => {
+            const username = row.getAttribute('data-username') || '';
+            const rolesAttr = row.getAttribute('data-roles') || '';
+            const userRolesList = rolesAttr.split(',').map(r => r.trim());
+
+            const matchesSearch = username.includes(query);
+            const matchesRole = isAllRoles || selectedRoles.some(r => userRolesList.includes(r));
+
+            if (matchesSearch && matchesRole) {
+                row.style.display = '';
+                row.classList.remove('hidden-row');
+                visibleRows.push(row);
+            } else {
+                row.style.display = 'none';
+                row.classList.add('hidden-row');
+            }
+        });
+
+        // Сортировка по балансу
+        if (activeSortValue !== 'default') {
+            visibleRows.sort((a, b) => {
+                const amountA = parseFloat(a.getAttribute('data-amount') || '0') || 0;
+                const amountB = parseFloat(b.getAttribute('data-amount') || '0') || 0;
+
+                return activeSortValue === 'asc' ? amountA - amountB : amountB - amountA;
+            });
+        }
+
+        visibleRows.forEach(row => tableBody.appendChild(row));
+
+        if (emptyRow) {
+            tableBody.appendChild(emptyRow);
+            emptyRow.style.display = (visibleRows.length === 0) ? '' : 'none';
+        }
+    }
+
+    if (searchInput) searchInput.addEventListener('input', updateTable);
+
+    // ==========================================================================
+    // 4. УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ И ВАЛИДАЦИЯ
     // ==========================================================================
     const createModal = document.getElementById('createModal');
     const editModal = document.getElementById('editModal');
@@ -61,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (editErrorContainer) editErrorContainer.innerHTML = '';
     }
 
-    // Очистка при вводе
     [createUsernameInput, createPasswordInput].forEach(input => {
         if (input) {
             input.addEventListener('input', () => {
@@ -78,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Открытие / Закрытие модалок
     if (openCreateBtn && createModal) {
         openCreateBtn.addEventListener('click', () => {
             if (createForm) createForm.reset();
@@ -112,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Открытие модалки редактирования (Клик на шестеренку)
     document.querySelectorAll('.btn-gear').forEach(btn => {
         btn.addEventListener('click', () => {
             resetEditErrors();
@@ -129,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (modalUsernameLabel) modalUsernameLabel.textContent = username;
             if (targetUsernameInput) targetUsernameInput.value = username;
-            if (editUsernameInput) editUsernameInput.value = username; // Заполняем поле смены логина
+            if (editUsernameInput) editUsernameInput.value = username;
             if (editStatusSelect) editStatusSelect.value = status;
             if (editPasswordInput) editPasswordInput.value = '';
 
@@ -142,10 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-    // ==========================================================================
-    // 3. ОТПРАВКА ФОРМ С КАСТОМНОЙ ВАЛИДАЦИЕЙ
-    // ==========================================================================
 
     // Создание пользователя
     if (createForm) {

@@ -18,7 +18,6 @@ def save_users(users):
         json.dump(users, f, indent=4, ensure_ascii=False)
 
 def normalize_user_data(username, raw_data):
-    """Приводит форматы пользователей к единому виду с массивом ролей и статусом"""
     if isinstance(raw_data, str):
         return {
             "password": raw_data,
@@ -63,6 +62,14 @@ def get_user_role(username):
     user_data = users.get(username)
     norm = normalize_user_data(username, user_data)
     return norm["roles"][0] if norm["roles"] else "User"
+
+def get_user_status(username):
+    users = load_users()
+    user_data = users.get(username)
+    if not user_data:
+        return "Beginner"
+    norm = normalize_user_data(username, user_data)
+    return norm.get("status", "Beginner")
 
 def get_users_count():
     users = load_users()

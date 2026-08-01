@@ -4,7 +4,7 @@ from locales.i18n import t
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
-VALID_ROLES = ["Owner", "Administrator", "Moderator", "Speaker", "Dobiver", "User"]
+VALID_ROLES = ["Owner", "Developer", "Administrator", "Moderator", "Speaker", "Dobiver", "User"]
 VALID_STATUSES = ["Beginner", "Worker", "Pro"]
 
 @admin_bp.route('/')
