@@ -88,6 +88,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
+    box-sizing: border-box;
 }
 
 .custom-dropdown-btn:hover,
@@ -120,19 +121,19 @@
     left: 0;
     width: 100%;
     min-width: 210px;
-    background: #090e17; /* Сплошной непрозрачный фон */
+    background: #090e17;
     border: 1px solid rgba(0, 240, 255, 0.35);
     border-radius: 10px;
     box-shadow: 0 12px 35px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 240, 255, 0.2);
     padding: 8px;
-    z-index: 99999;
+    z-index: 9999;
     display: none;
     max-height: 250px;
     overflow-y: auto;
     box-sizing: border-box;
 }
 
-/* Кастомный неоновый скроллбар для меню */
+/* Скроллбар для выпадающего списка */
 .custom-dropdown-menu::-webkit-scrollbar {
     width: 5px;
 }
@@ -176,9 +177,11 @@
     background: transparent;
 }
 
-.dropdown-item:hover {
-    background: rgba(0, 240, 255, 0.15);
+.dropdown-item:hover,
+.dropdown-item.status-option.active {
+    background: rgba(0, 240, 255, 0.18);
     color: #00f0ff;
+    font-weight: 600;
 }
 
 .dropdown-item.sort-option.active {
@@ -396,6 +399,8 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 240, 255, 0.15);
     background: #0d131d;
     box-sizing: border-box;
+    position: relative;
+    overflow: visible;
 }
 
 .modal-header {
@@ -427,6 +432,7 @@
 
 .input-group {
     margin-bottom: 16px;
+    position: relative;
 }
 
 .group-label {
@@ -480,39 +486,21 @@
     box-shadow: 0 0 12px rgba(255, 71, 87, 0.2);
 }
 
-.custom-select {
+/* Дропдаун статуса внутри модалок */
+.modal-dropdown {
     width: 100%;
+    min-width: 100%;
+    position: relative;
+}
+
+.modal-dropdown .custom-dropdown-btn {
     height: 44px;
-    padding: 0 38px 0 14px;
-    background-color: rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 8px;
-    color: #ffffff;
-    outline: none;
-    font-size: 14px;
-    box-sizing: border-box;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2300f0ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    background-size: 16px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 0 14px;
 }
 
-.custom-select:focus,
-.custom-select:hover {
-    border-color: #00f0ff;
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
-    background-color: rgba(0, 0, 0, 0.6);
-}
-
-.custom-select option {
-    background-color: #0d131d;
-    color: #ffffff;
-    padding: 12px;
+.modal-dropdown .custom-dropdown-menu {
+    width: 100%;
+    min-width: 100%;
 }
 
 .checkbox-grid {

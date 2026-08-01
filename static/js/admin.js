@@ -1,45 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
-    // 1. ИНИЦИАЛИЗАЦИЯ И УПРАВЛЕНИЕ КАСТОМНЫМИ ВЫПАДАЮЩИМИ СПИСКАМИ (DROPDOWNS)
+    // 1. УНИВЕРСАЛЬНАЯ ЛОГИКА ДЛЯ ВСЕХ КАСТОМНЫХ ВЫПАДАЮЩИХ СПИСКОВ
     // ==========================================================================
-    const roleDropdown = document.getElementById('roleDropdown');
-    const roleDropdownBtn = document.getElementById('roleDropdownBtn');
-    const roleDropdownLabel = document.getElementById('roleDropdownLabel');
-    const selectAllRoles = document.getElementById('selectAllRoles');
-    const roleFilterCbs = Array.from(document.querySelectorAll('.role-filter-cb'));
-
-    const sortDropdown = document.getElementById('sortDropdown');
-    const sortDropdownBtn = document.getElementById('sortDropdownBtn');
-    const sortDropdownLabel = document.getElementById('sortDropdownLabel');
-    const sortOptions = document.querySelectorAll('.sort-option');
-
-    let activeSortValue = 'default';
-
-    // Открытие/закрытие списка ролей
-    if (roleDropdownBtn && roleDropdown) {
-        roleDropdownBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sortDropdown?.classList.remove('active');
-            roleDropdown.classList.toggle('active');
-        });
-    }
-
-    // Открытие/закрытие списка сортировки
-    if (sortDropdownBtn && sortDropdown) {
-        sortDropdownBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            roleDropdown?.classList.remove('active');
-            sortDropdown.classList.toggle('active');
-        });
-    }
-
-    // Закрытие всех выпадающих списков при клике вне их области
-    document.addEventListener('click', () => {
-        roleDropdown?.classList.remove('active');
-        sortDropdown?.classList.remove('active');
+    
+    // Переключение открытого/закрытого состояния любого дропдауна
+    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        const btn = dropdown.querySelector('.custom-dropdown-btn');
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Закрываем все остальные открытые меню
+                document.querySelectorAll('.custom-dropdown.active').forEach(other => {
+                    if (other !== dropdown) other.classList.remove('active');
+                });
+                dropdown.classList.toggle('active');
+            });
+        }
     });
 
-    // Предотвращаем закрытие списка ролей при клике внутри меню
+    // Закрываем все выпадающие списки при клике в любую точку экрана
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-dropdown.active').forEach(d => {
+            d.classList.remove('active');
+        });
+    });
+
+    // Предотвращаем закрытие при клике внутри меню с чекбоксами (фильтр ролей)
     const roleDropdownMenu = document.getElementById('roleDropdownMenu');
     if (roleDropdownMenu) {
         roleDropdownMenu.addEventListener('click', (e) => {
@@ -47,11 +33,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Обработка выбора статуса в модальных окнах (Создание / Редактирование)
+    document.querySelectorAll('.modal-dropdown').forEach(dropdown => {
+        const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+        const label = dropdown.querySelector('.custom-dropdown-btn span');
+        const options = dropdown.querySelectorAll('.status-option');
+
+        options.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const val = option.getAttribute('data-value');
+                
+                if (hiddenInput) hiddenInput.value = val;
+                if (label) label.textContent = val;
+
+                options.forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+
+                dropdown.classList.remove('active');
+            });
+        });
+    });
+
     // ==========================================================================
-    // 2. ЛОГИКА МУЛЬТИ-СЕЛЕКТА РОЛЕЙ И СОРТИРОВКИ
+    // 2. ЛОГИКА ФИЛЬТРАЦИИ И СОРТИРОВКИ В ВЕРХНЕЙ ПАНЕЛИ
     // ==========================================================================
-    
-    // Переключение пункта "Все роли"
+    const roleDropdownLabel = document.getElementById('roleDropdownLabel');
+    const selectAllRoles = document.getElementById('selectAllRoles');
+    const roleFilterCbs = Array.from(document.querySelectorAll('.role-filter-cb'));
+
+    const sortDropdown = document.getElementById('sortDropdown');
+    const sortDropdownLabel = document.getElementById('sortDropdownLabel');
+    const sortOptions = document.querySelectorAll('.sort-option');
+
+    let activeSortValue = 'default';
+
     if (selectAllRoles) {
         selectAllRoles.addEventListener('change', () => {
             if (selectAllRoles.checked) {
@@ -62,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Переключение отдельных чекбоксов ролей
     roleFilterCbs.forEach(cb => {
         cb.addEventListener('change', () => {
             const anyChecked = roleFilterCbs.some(c => c.checked);
@@ -76,8 +91,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Обновление заголовка кнопки фильтра ролей
     function updateRoleLabel() {
+        if (!roleDropdownLabel) return;
         const checkedCbs = roleFilterCbs.filter(c => c.checked);
         const allText = roleDropdownLabel.getAttribute('data-text-all') || 'Все роли';
 
@@ -91,22 +106,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Выбор опции сортировки
     sortOptions.forEach(option => {
         option.addEventListener('click', () => {
             sortOptions.forEach(opt => opt.classList.remove('active'));
             option.classList.add('active');
 
             activeSortValue = option.getAttribute('data-value');
-            sortDropdownLabel.textContent = option.textContent;
-            sortDropdown.classList.remove('active');
+            if (sortDropdownLabel) sortDropdownLabel.textContent = option.textContent;
+            if (sortDropdown) sortDropdown.classList.remove('active');
 
             updateTable();
         });
     });
 
+    function parseAmountValue(rawAttrValue) {
+        if (!rawAttrValue) return 0;
+        const cleaned = rawAttrValue.replace(/[^0-9.-]+/g, '');
+        const val = parseFloat(cleaned);
+        return isNaN(val) ? 0 : val;
+    }
+
     // ==========================================================================
-    // 3. ЖИВОЙ ПОИСК, ФИЛЬТРАЦИЯ И СОРТИРОВКА ТАБЛИЦЫ
+    // 3. ЖИВОЙ ПОИСК И ТАБЛИЦА
     // ==========================================================================
     const searchInput = document.getElementById('userSearchInput');
     const tableBody = document.getElementById('usersTableBody');
@@ -138,12 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Сортировка по балансу
         if (activeSortValue !== 'default') {
             visibleRows.sort((a, b) => {
-                const amountA = parseFloat(a.getAttribute('data-amount') || '0') || 0;
-                const amountB = parseFloat(b.getAttribute('data-amount') || '0') || 0;
-
+                const amountA = parseAmountValue(a.getAttribute('data-amount'));
+                const amountB = parseAmountValue(b.getAttribute('data-amount'));
                 return activeSortValue === 'asc' ? amountA - amountB : amountB - amountA;
             });
         }
@@ -159,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) searchInput.addEventListener('input', updateTable);
 
     // ==========================================================================
-    // 4. УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ И ВАЛИДАЦИЯ
+    // 4. УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ
     // ==========================================================================
     const createModal = document.getElementById('createModal');
     const editModal = document.getElementById('editModal');
@@ -239,6 +258,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (createModal?.classList.contains('active')) {
+                createModal.classList.remove('active');
+                resetCreateErrors();
+            }
+            if (editModal?.classList.contains('active')) {
+                editModal.classList.remove('active');
+                resetEditErrors();
+            }
+        }
+    });
+
+    // НАЖАТИЕ НА ШЕСТЕРЕНКУ (Открытие редактирования)
     document.querySelectorAll('.btn-gear').forEach(btn => {
         btn.addEventListener('click', () => {
             resetEditErrors();
@@ -250,15 +283,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const modalUsernameLabel = document.getElementById('editModalUsername');
             const targetUsernameInput = document.getElementById('editTargetUsername');
-            const editStatusSelect = document.getElementById('editStatus');
             const editPasswordInput = document.getElementById('editPassword');
 
             if (modalUsernameLabel) modalUsernameLabel.textContent = username;
             if (targetUsernameInput) targetUsernameInput.value = username;
             if (editUsernameInput) editUsernameInput.value = username;
-            if (editStatusSelect) editStatusSelect.value = status;
             if (editPasswordInput) editPasswordInput.value = '';
 
+            // Установка статуса в кастомный выпадающий список модалки
+            const editStatusDropdown = document.getElementById('editStatusDropdown');
+            if (editStatusDropdown) {
+                const hiddenStatusInput = editStatusDropdown.querySelector('#editStatus');
+                const statusLabel = editStatusDropdown.querySelector('#editStatusLabel');
+                const statusOptions = editStatusDropdown.querySelectorAll('.status-option');
+
+                if (hiddenStatusInput) hiddenStatusInput.value = status;
+                if (statusLabel) statusLabel.textContent = status;
+
+                statusOptions.forEach(opt => {
+                    if (opt.getAttribute('data-value') === status) {
+                        opt.classList.add('active');
+                    } else {
+                        opt.classList.remove('active');
+                    }
+                });
+            }
+
+            // Выставление чекбоксов ролей
             document.querySelectorAll('input[name="editRoles"]').forEach(cb => {
                 cb.checked = roles.includes(cb.value);
             });
@@ -277,7 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const username = createUsernameInput.value.trim();
             const password = createPasswordInput.value.trim();
-            const status = document.getElementById('createStatus').value;
+            const statusInput = document.getElementById('createStatus');
+            const status = statusInput ? statusInput.value : '';
             
             if (!username || !password) {
                 if (!username) createUsernameInput.classList.add('input-error');
@@ -329,7 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const oldUsername = document.getElementById('editTargetUsername').value;
             const newUsername = editUsernameInput.value.trim();
             const password = document.getElementById('editPassword').value.trim();
-            const status = document.getElementById('editStatus').value;
+            const statusInput = document.getElementById('editStatus');
+            const status = statusInput ? statusInput.value : '';
 
             if (!newUsername) {
                 editUsernameInput.classList.add('input-error');
