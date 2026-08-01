@@ -242,7 +242,7 @@ body {
 }
 
 /* ==========================================================================
-   ОБЩАЯ СЕТКА И САЙДБАР (ПРАВКИ Sticky & Scroll)
+   ОБЩАЯ СЕТКА И САЙДБАР
    ========================================================================== */
 .layout-wrapper {
     display: flex;
@@ -250,7 +250,7 @@ body {
     gap: 24px;
     padding: 20px 24px 24px 24px;
     width: 100%;
-    align-items: flex-start; /* Разрешает липкую позицию для сайдбара */
+    align-items: flex-start;
 }
 
 .sidebar {
@@ -261,9 +261,9 @@ body {
     flex-direction: column;
     justify-content: space-between;
     position: sticky;
-    top: 92px; /* Фиксация прямо под шапкой при скролле */
-    height: calc(100vh - 116px);
-    max-height: calc(100vh - 116px);
+    top: 96px; /* Идеальное совпадение: 16px top шапки + 60px высота + 20px padding у wrapper */
+    height: calc(100vh - 120px);
+    max-height: calc(100vh - 120px);
     overflow-y: auto;
     box-sizing: border-box;
 }
