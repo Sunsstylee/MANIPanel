@@ -9,8 +9,7 @@
     "Sunix": {
         "password": "2711",
         "roles": [
-            "Developer",
-            "Administrator"
+            "Developer"
         ],
         "status": "Pro"
     },

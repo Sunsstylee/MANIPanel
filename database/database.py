@@ -5,21 +5,18 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_FILE = os.path.join(BASE_DIR, "users.json")
 SETTINGS_FILE = os.path.join(BASE_DIR, "settings.json")
 
-# Верховные роли управления сайтом (в нижнем регистре для сравнения)
+# Роли высшего уровня (им всегда доступно всё)
 TOP_ROLES = ["owner", "co-owner", "developer"]
-
-# ==========================================
-# РАБОТА С НАСТРОЙКАМИ САЙТА
-# ==========================================
 
 DEFAULT_SETTINGS = {
     "site_closed": False,
     "page_permissions": {
         "dashboard": ["Owner", "Co-Owner", "Developer", "Administrator", "Moderator", "Speaker", "Dobiver", "User"],
-        "admin": ["Owner", "Co-Owner", "Developer", "Administrator"],
+        "techpanel": ["Owner", "Co-Owner", "Developer", "Administrator"],
         "logs": ["Owner", "Co-Owner", "Developer"],
         "actions": ["Owner", "Co-Owner", "Developer"],
-        "replacements": ["Owner", "Co-Owner", "Developer"]
+        "replacements": ["Owner", "Co-Owner", "Developer"],
+        "clients": ["Owner", "Co-Owner", "Developer"]
     }
 }
 
@@ -34,6 +31,10 @@ def load_settings():
                 settings["site_closed"] = False
             if "page_permissions" not in settings:
                 settings["page_permissions"] = DEFAULT_SETTINGS["page_permissions"]
+            else:
+                if "admin" in settings["page_permissions"]:
+                    settings["page_permissions"]["techpanel"] = settings["page_permissions"].pop("admin")
+                    save_settings(settings)
             return settings
         except json.JSONDecodeError:
             return DEFAULT_SETTINGS
@@ -41,10 +42,6 @@ def load_settings():
 def save_settings(settings):
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=4, ensure_ascii=False)
-
-# ==========================================
-# РАБОТА С ПОЛЬЗОВАТЕЛЯМИ
-# ==========================================
 
 def load_users():
     if not os.path.exists(USERS_FILE):
@@ -105,10 +102,10 @@ def get_user_roles(username):
     if not user_data:
         return ["User"]
     norm = normalize_user_data(username, user_data)
-    return norm.get("roles", ["User"])
+    roles = norm.get("roles", ["User"])
+    return [roles] if isinstance(roles, str) else roles
 
 def is_top_admin(username):
-    """Проверяет, имеет ли пользователь одну из главных ролей (Owner, Co-Owner, Developer) без учета регистра."""
     if not username:
         return False
     roles = get_user_roles(username)

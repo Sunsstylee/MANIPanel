@@ -1,12 +1,12 @@
 /* ==========================================================================
-   ОБЛАСТЬ ОГРАНИЧЕНИЯ ДОСТУПА НА ВСЮ КАТЕГОРИЮ (БЕЗ ШАПКИ И САЙДБАРА)
+   ОБЛАСТЬ ОГРАНИЧЕНИЯ ДОСТУПА НА ВСЮ КАТЕГОРИЮ
    ========================================================================== */
 .main-content-wrapper {
     position: relative;
     flex: 1;
     min-width: 0;
     width: 100%;
-    min-height: calc(100vh - 80px); /* Гарантирует растяжение по всей высоте контента */
+    min-height: calc(100vh - 80px);
     display: flex;
     flex-direction: column;
 }
@@ -19,7 +19,7 @@
     transition: filter 0.3s ease;
 }
 
-/* Оверлей блокировки на ВСЮ область контента */
+/* Оверлей блокировки */
 .access-denied-overlay {
     position: absolute;
     top: 0;
@@ -75,7 +75,7 @@
 }
 
 /* ==========================================================================
-   ФИКСИРОВАННАЯ КНОПКА В ШАПКЕ САЙДБАРА И АНИМАЦИЯ ШЕСТЕРЕНКИ
+   КНОПКА В ШАПКЕ САЙДБАРА
    ========================================================================== */
 .sidebar-header {
     height: 56px;
@@ -121,7 +121,6 @@
     flex-shrink: 0;
 }
 
-/* Анимация вращения шестеренки при наведении на кнопку */
 .btn-top-admin-control .icon-gear {
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -147,7 +146,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(6, 9, 15, 0.8);
+    background: rgba(5, 9, 16, 0.82);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     display: flex;
@@ -165,16 +164,16 @@
 }
 
 .system-modal-card {
-    background: rgba(13, 18, 30, 0.95);
-    border: 1px solid rgba(0, 240, 255, 0.25);
+    background: #0d131d;
+    border: 1px solid rgba(0, 240, 255, 0.2);
     border-radius: 16px;
-    width: 92%;
-    max-width: 640px;
+    width: 94%;
+    max-width: 650px;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 240, 255, 0.15);
-    transform: scale(0.92) translateY(10px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 240, 255, 0.15);
+    transform: scale(0.94) translateY(10px);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     overflow: hidden;
 }
@@ -188,8 +187,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 18px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.01);
 }
 
 .modal-header-title {
@@ -200,14 +199,14 @@
 
 .modal-title-gear {
     color: #00f0ff;
-    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));
+    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5));
 }
 
 .modal-header h3 {
     margin: 0;
-    color: #fff;
-    font-size: 1.25rem;
-    font-weight: 600;
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 700;
     letter-spacing: 0.5px;
 }
 
@@ -228,14 +227,32 @@
 #systemControlForm {
     padding: 20px 24px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Стилизация скроллбара */
+#systemControlForm::-webkit-scrollbar {
+    width: 6px;
+}
+#systemControlForm::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+#systemControlForm::-webkit-scrollbar-thumb {
+    background: rgba(0, 240, 255, 0.25);
+    border-radius: 3px;
+}
+#systemControlForm::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 240, 255, 0.5);
 }
 
 /* Переключатель работы сайта */
 .system-toggle-box {
     display: flex;
     align-items: center;
-    gap: 16px;
-    background: rgba(255, 255, 255, 0.03);
+    justify-content: space-between;
+    background: rgba(18, 25, 38, 0.8);
     padding: 14px 18px;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -243,16 +260,15 @@
 
 .toggle-title {
     font-weight: 600;
-    color: #fff;
-    font-size: 0.95rem;
+    color: #e2e8f0;
+    font-size: 0.9rem;
 }
 
-/* Switch styling */
 .switch-container {
     position: relative;
     display: inline-block;
-    width: 46px;
-    height: 24px;
+    width: 44px;
+    height: 22px;
     flex-shrink: 0;
 }
 
@@ -266,17 +282,17 @@
     position: absolute;
     cursor: pointer;
     inset: 0;
-    background-color: #242c3d;
+    background-color: #1e293b;
     transition: .3s;
-    border-radius: 24px;
+    border-radius: 22px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .switch-slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
+    height: 16px;
+    width: 16px;
     left: 2px;
     bottom: 2px;
     background-color: #8a99ad;
@@ -285,95 +301,139 @@
 }
 
 input:checked + .switch-slider {
-    background-color: rgba(255, 77, 77, 0.2);
-    border-color: #ff4d4d;
-    box-shadow: 0 0 12px rgba(255, 77, 77, 0.4);
+    background-color: rgba(0, 240, 255, 0.2);
+    border-color: #00f0ff;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
 
 input:checked + .switch-slider:before {
     transform: translateX(22px);
-    background-color: #ff4d4d;
+    background-color: #00f0ff;
+    box-shadow: 0 0 8px #00f0ff;
 }
 
-.modal-divider {
-    border: 0;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.08);
-    margin: 20px 0;
-}
-
-.perm-section-title {
-    margin: 0 0 14px 0;
-    color: #00f0ff;
-    font-size: 1rem;
-    font-weight: 600;
-}
-
+/* Разделы карточек категорий */
 .permissions-matrix {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .perm-page-group {
-    background: rgba(18, 24, 38, 0.7);
+    background: rgba(17, 23, 35, 0.75);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    padding: 12px 16px;
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: border-color 0.2s ease;
+}
+
+.perm-page-group:hover {
+    border-color: rgba(0, 240, 255, 0.15);
 }
 
 .perm-page-header {
-    font-weight: 700;
+    font-weight: 800;
     color: #00f0ff;
-    margin-bottom: 10px;
-    font-size: 0.85rem;
+    margin-bottom: 12px;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-}
-
-.perm-roles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 10px;
-}
-
-.custom-checkbox {
+    letter-spacing: 1px;
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #c5d1e0;
-    font-size: 0.85rem;
+}
+
+/* Сетка ролей: по 4 чипа в ряд */
+.perm-roles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+@media (max-width: 580px) {
+    .perm-roles-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Интерактивные чипы ролей */
+.role-chip {
+    position: relative;
+    display: block;
     cursor: pointer;
     user-select: none;
 }
 
-.custom-checkbox input {
-    accent-color: #00f0ff;
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
+.role-chip input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.chip-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #8a99ad;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+}
+
+.chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.role-chip:hover .chip-inner {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(0, 240, 255, 0.3);
+    color: #cbd5e1;
+}
+
+.role-chip input[type="checkbox"]:checked + .chip-inner {
+    background: rgba(0, 240, 255, 0.12);
+    border-color: #00f0ff;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+}
+
+.role-chip input[type="checkbox"]:checked + .chip-inner .chip-dot {
+    background: #00f0ff;
+    box-shadow: 0 0 8px #00f0ff;
 }
 
 .modal-footer {
-    margin-top: 24px;
+    margin-top: 8px;
 }
 
 .btn-save-neon {
     width: 100%;
-    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 150, 255, 0.3));
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(0, 150, 255, 0.25));
     border: 1px solid #00f0ff;
-    color: #fff;
-    font-weight: 600;
-    font-size: 0.95rem;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.9rem;
     padding: 12px;
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
 }
 
 .btn-save-neon:hover {
-    background: linear-gradient(135deg, rgba(0, 240, 255, 0.4), rgba(0, 150, 255, 0.5));
-    box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
-    transform: translateY(-1px);
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(0, 150, 255, 0.4));
+    box-shadow: 0 0 22px rgba(0, 240, 255, 0.35);
 }

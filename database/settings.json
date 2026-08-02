@@ -41,7 +41,17 @@
             "Dobiver",
             "User"
         ],
-        "admin": [
+        "clients": [
+            "Owner",
+            "Co-Owner",
+            "Developer",
+            "Administrator",
+            "Moderator",
+            "Speaker",
+            "Dobiver",
+            "User"
+        ],
+        "techpanel": [
             "Owner",
             "Co-Owner",
             "Developer"

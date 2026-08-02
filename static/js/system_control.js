@@ -5,13 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('systemControlForm');
     const matrixContainer = document.getElementById('permissionsMatrix');
 
-    // Разделы страниц сайта для матрицы доступности
+    // Все категории сайта для матрицы прав
     const SECTIONS = [
-        { id: 'dashboard', title: 'DASHBOARD' },
-        { id: 'logs', title: 'LOGS' },
-        { id: 'actions', title: 'ACTIONS' },
-        { id: 'replacements', title: 'REPLACEMENTS' },
-        { id: 'admin', title: 'ADMIN PANEL' }
+        { id: 'dashboard', title: 'ГЛАВНАЯ' },
+        { id: 'logs', title: 'ЛОГИ' },
+        { id: 'actions', title: 'ДЕЙСТВИЯ' },
+        { id: 'replacements', title: 'ПОДМЕНЫ' },
+        { id: 'clients', title: 'КЛИЕНТЫ' },
+        { id: 'techpanel', title: 'ТЕХ ПАНЕЛЬ' }
     ];
 
     if (openBtn && modal) {
@@ -27,10 +28,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Загрузка настроек с бэкенда и динамический рендеринг матрицы
+    // Закрытие при клике по фону за пределами карточки
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    }
+
+    // Загрузка настроек и динамическая отрисовка ролей
     async function loadSettingsAndRender() {
         try {
-            const res = await fetch('/admin/api/settings');
+            const res = await fetch('/techpanel/api/settings');
             if (!res.ok) return;
 
             const data = await res.json();
@@ -38,22 +48,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const validRoles = data.valid_roles || [];
             const permissions = settings.page_permissions || {};
 
-            // Переключатель закрытия сайта
+            // Переключатель «Закрыть сайт»
             const siteClosedToggle = document.getElementById('siteClosedToggle');
             if (siteClosedToggle) {
                 siteClosedToggle.checked = !!settings.site_closed;
             }
 
-            // Динамическая генерация чекбоксов с локализацией категорий
+            // Динамический рендеринг категорий и их ролей в виде чипов
             if (matrixContainer) {
                 matrixContainer.innerHTML = '';
 
                 SECTIONS.forEach(sec => {
-                    const secRoles = permissions[sec.id] || [];
+                    // Поддержка ключа admin для обратной совместимости
+                    const secRoles = permissions[sec.id] || (sec.id === 'techpanel' ? permissions['admin'] : []) || [];
                     const groupEl = document.createElement('div');
                     groupEl.className = 'perm-page-group';
 
-                    // Получаем переведенный заголовок категории или резервное имя
+                    // Локализованное название категории из global JS window.NAV_TRANSLATIONS
                     const translatedTitle = (window.NAV_TRANSLATIONS && window.NAV_TRANSLATIONS[sec.id])
                         ? window.NAV_TRANSLATIONS[sec.id].toUpperCase()
                         : sec.title;
@@ -61,10 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const rolesHtml = validRoles.map(role => {
                         const isChecked = secRoles.includes(role) ? 'checked' : '';
                         return `
-                            <label class="custom-checkbox">
+                            <label class="role-chip">
                                 <input type="checkbox" data-section="${sec.id}" value="${role}" ${isChecked}>
-                                <span class="checkmark"></span>
-                                <span>${role}</span>
+                                <span class="chip-inner">
+                                    <span class="chip-dot"></span>
+                                    <span class="role-name">${role}</span>
+                                </span>
                             </label>
                         `;
                     }).join('');
@@ -102,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             try {
-                const res = await fetch('/admin/api/settings', {
+                const res = await fetch('/techpanel/api/settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -116,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     modal.classList.remove('active');
                     location.reload();
                 } else {
-                    alert('Ошибка сохранения настроек');
+                    alert('Ошибка при сохранении настроек');
                 }
             } catch (err) {
                 console.error('Ошибка сохранения:', err);

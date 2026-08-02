@@ -1,19 +1,20 @@
 from flask import Flask, redirect, url_for, session, request, render_template
 from routes.auth import auth_bp
-from routes.admin import admin_bp, VALID_ROLES
+from routes.techpanel import techpanel_bp, VALID_ROLES
 from locales.i18n import t
 from database.database import load_settings, is_top_admin, get_user_roles
 
 app = Flask(__name__)
 app.secret_key = "mani_super_secret_key"
 
-# Карта соответствия роутов и разделов сайта
+# Карта соответствия Flask-эндпоинтов и разделов в settings.json
 ROUTE_PAGE_MAP = {
     'auth.dashboard': 'dashboard',
-    'admin.admin_panel': 'admin',
+    'techpanel.techpanel': 'techpanel',
     'auth.logs': 'logs',
     'auth.actions': 'actions',
-    'auth.replacements': 'replacements'
+    'auth.replacements': 'replacements',
+    'auth.clients': 'clients'
 }
 
 @app.context_processor
@@ -25,14 +26,27 @@ def inject_globals():
     settings = load_settings()
     perms = settings.get('page_permissions', {})
     
-    # Проверка прав на текущую страницу
     access_denied = False
+    
+    # Если юзер авторизован и НЕ является верхушкой (Owner / Co-Owner / Developer)
     if username and not top_admin:
         page_key = ROUTE_PAGE_MAP.get(request.endpoint)
+        
         if page_key and page_key in perms:
             user_roles = get_user_roles(username)
+            if isinstance(user_roles, str):
+                user_roles = [user_roles]
+                
             allowed_roles = perms[page_key]
-            if not any(r in allowed_roles for r in user_roles):
+            if isinstance(allowed_roles, str):
+                allowed_roles = [allowed_roles]
+
+            # Сравнение множеств без учета регистра
+            user_roles_set = {str(r).strip().lower() for r in user_roles}
+            allowed_roles_set = {str(r).strip().lower() for r in allowed_roles}
+            
+            # Запрещаем доступ ТОЛЬКО если нет ни одной общей роли
+            if not (user_roles_set & allowed_roles_set):
                 access_denied = True
 
     return dict(
@@ -71,7 +85,7 @@ def set_language(lang):
     return redirect(request.referrer or url_for('index'))
 
 app.register_blueprint(auth_bp)
-app.register_blueprint(admin_bp)
+app.register_blueprint(techpanel_bp)
 
 @app.route('/')
 def index():

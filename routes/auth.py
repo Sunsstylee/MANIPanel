@@ -83,10 +83,10 @@ def clients():
     lang = session.get('lang', 'ru')
     return render_template('coming_soon.html', page_name=t('nav_clients', lang), t=lambda key: t(key, lang))
 
-@auth_bp.route('/admin')
+@auth_bp.route('/techpanel')
 @login_required
-def admin_panel():
-    return redirect(url_for('admin.admin_panel'))
+def techpanel():
+    return redirect(url_for('techpanel.techpanel'))
 
 @auth_bp.route('/logout')
 def logout():
