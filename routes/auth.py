@@ -77,6 +77,12 @@ def replacements():
     lang = session.get('lang', 'ru')
     return render_template('coming_soon.html', page_name=t('nav_replacements', lang), t=lambda key: t(key, lang))
 
+@auth_bp.route('/clients')
+@login_required
+def clients():
+    lang = session.get('lang', 'ru')
+    return render_template('coming_soon.html', page_name=t('nav_clients', lang), t=lambda key: t(key, lang))
+
 @auth_bp.route('/admin')
 @login_required
 def admin_panel():
