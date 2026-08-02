@@ -47,33 +47,35 @@ def login():
         else:
             error_key = "error_invalid"
             
-    return render_template('auth/login.html', error_key=error_key, username=username)
+    lang = session.get('lang', 'ru')
+    return render_template('auth/login.html', error_key=error_key, username=username, t=lambda key: t(key, lang))
 
 @auth_bp.route('/dashboard')
 @login_required
 def dashboard():
+    lang = session.get('lang', 'ru')
     username = session.get('username')
     role = get_user_role(username)
     status = get_user_status(username)
-    return render_template('auth/dashboard.html', username=username, role=role, status=status)
+    return render_template('auth/dashboard.html', username=username, role=role, status=status, t=lambda key: t(key, lang))
 
 @auth_bp.route('/logs')
 @login_required
 def logs():
     lang = session.get('lang', 'ru')
-    return render_template('coming_soon.html', page_name=t('nav_logs', lang))
+    return render_template('coming_soon.html', page_name=t('nav_logs', lang), t=lambda key: t(key, lang))
 
 @auth_bp.route('/actions')
 @login_required
 def actions():
     lang = session.get('lang', 'ru')
-    return render_template('coming_soon.html', page_name=t('nav_actions', lang))
+    return render_template('coming_soon.html', page_name=t('nav_actions', lang), t=lambda key: t(key, lang))
 
 @auth_bp.route('/replacements')
 @login_required
 def replacements():
     lang = session.get('lang', 'ru')
-    return render_template('coming_soon.html', page_name=t('nav_replacements', lang))
+    return render_template('coming_soon.html', page_name=t('nav_replacements', lang), t=lambda key: t(key, lang))
 
 @auth_bp.route('/admin')
 @login_required
