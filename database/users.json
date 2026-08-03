@@ -1,0 +1,23 @@
+{
+    "admin": {
+        "password": "12345",
+        "roles": [
+            "Administrator"
+        ],
+        "status": "Worker"
+    },
+    "Sunix": {
+        "password": "2711",
+        "roles": [
+            "Developer"
+        ],
+        "status": "Pro"
+    },
+    "MANI": {
+        "password": "12345",
+        "roles": [
+            "Owner"
+        ],
+        "status": "Pro"
+    }
+}

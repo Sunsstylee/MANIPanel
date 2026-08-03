@@ -1,0 +1,137 @@
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 194, 255, 0.04) 0%, transparent 70%);
+}
+
+/* Мягкие неоновые пятна на фоне */
+.glow-blob {
+    position: absolute;
+    width: 380px;
+    height: 380px;
+    background: var(--neon-color);
+    filter: blur(150px);
+    opacity: 0.12;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.glow-blob-1 {
+    top: 15%;
+    left: 20%;
+}
+
+.glow-blob-2 {
+    bottom: 15%;
+    right: 20%;
+    background: #0066ff;
+}
+
+/* Карточка входа */
+.login-card {
+    width: 380px;
+    padding: 40px 32px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 2;
+    animation: cardAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Переключатель языков в углу стекла */
+.login-card .login-lang-switcher {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: fit-content !important;
+    display: inline-flex !important;
+    z-index: 10;
+}
+
+@keyframes cardAppear {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Иконка замка по центру над заголовком */
+.brand-badge {
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 16px;
+    background: rgba(0, 194, 255, 0.06);
+    border: 1px solid var(--neon-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px var(--neon-glow);
+}
+
+.brand-badge svg {
+    width: 22px;
+    height: 22px;
+    fill: var(--neon-color);
+}
+
+.login-card h2 {
+    color: var(--text-main);
+    text-align: center;
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+}
+
+.login-subtitle {
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 12px;
+    margin: 0 0 24px 0;
+    line-height: 1.4;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 13px 16px;
+    font-size: 13px;
+    border-radius: 8px;
+    background: rgba(7, 9, 19, 0.75);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    box-sizing: border-box;
+}
+
+.login-card input:focus {
+    border-color: var(--neon-color);
+    box-shadow: 0 0 12px var(--neon-glow);
+    background: rgba(7, 9, 19, 0.95);
+}
+
+.btn-neon {
+    width: 100%;
+    padding: 13px;
+    font-size: 13px;
+    border-radius: 8px;
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.btn-neon:active {
+    transform: translateY(1px);
+}
