@@ -52,6 +52,7 @@
     "role_dobiver": "Добивер",
     "role_user": "Пользователь",
     "amount_label": "СУММА",
+    "amount_placeholder": "Сумма ($)",
     "users_not_found": "Пользователи не найдены",
     "edit_btn": "Редактировать",
     "err_unauthorized": "Неавторизован",

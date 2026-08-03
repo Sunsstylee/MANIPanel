@@ -182,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     // 4. МАССОВОЕ ВЫДЕЛЕНИЕ И УДАЛЕНИЕ (SELECTION MODE & BULK ACTIONS)
     // ==========================================================================
-    // Исправлен ID контейнера панели
     const adminContainer = document.getElementById('techpanelContainer') || document.getElementById('adminContainer');
     const toggleSelectModeBtn = document.getElementById('toggleSelectModeBtn');
     const selectAllUsersCb = document.getElementById('selectAllUsers');
@@ -329,7 +328,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const createUsernameInput = document.getElementById('createUsername');
     const createPasswordInput = document.getElementById('createPassword');
+    const createBalanceInput = document.getElementById('createBalance');
+    
     const editUsernameInput = document.getElementById('editUsername');
+    const editBalanceInput = document.getElementById('editBalance');
     
     const createErrorContainer = document.getElementById('createErrorContainer');
     const editErrorContainer = document.getElementById('editErrorContainer');
@@ -345,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (editErrorContainer) editErrorContainer.innerHTML = '';
     }
 
-    [createUsernameInput, createPasswordInput].forEach(input => {
+    [createUsernameInput, createPasswordInput, createBalanceInput].forEach(input => {
         if (input) {
             input.addEventListener('input', () => {
                 input.classList.remove('input-error');
@@ -354,12 +356,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    if (editUsernameInput) {
-        editUsernameInput.addEventListener('input', () => {
-            editUsernameInput.classList.remove('input-error');
-            if (editErrorContainer) editErrorContainer.innerHTML = '';
-        });
-    }
+    [editUsernameInput, editBalanceInput].forEach(input => {
+        if (input) {
+            input.addEventListener('input', () => {
+                input.classList.remove('input-error');
+                if (editErrorContainer) editErrorContainer.innerHTML = '';
+            });
+        }
+    });
 
     if (openCreateBtn && createModal) {
         openCreateBtn.addEventListener('click', () => {
@@ -416,6 +420,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const status = btn.getAttribute('data-status');
             const rolesAttr = btn.getAttribute('data-roles') || '';
             const roles = rolesAttr.split(',');
+            const rawAmount = btn.getAttribute('data-amount') || '$0.00';
+            // Очищаем символ '$' для удобства ввода суммы
+            const cleanedBalance = rawAmount.replace('$', '').trim();
 
             const modalUsernameLabel = document.getElementById('editModalUsername');
             const targetUsernameInput = document.getElementById('editTargetUsername');
@@ -425,6 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetUsernameInput) targetUsernameInput.value = username;
             if (editUsernameInput) editUsernameInput.value = username;
             if (editPasswordInput) editPasswordInput.value = '';
+            if (editBalanceInput) editBalanceInput.value = cleanedBalance;
 
             // Установка статуса в кастомный выпадающий список модалки
             const editStatusDropdown = document.getElementById('editStatusDropdown');
@@ -464,6 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const username = createUsernameInput.value.trim();
             const password = createPasswordInput.value.trim();
+            const balance = createBalanceInput ? createBalanceInput.value.trim() : '0.00';
             const statusInput = document.getElementById('createStatus');
             const status = statusInput ? statusInput.value : '';
             
@@ -489,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await fetch('/techpanel/api/users/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, roles, status })
+                    body: JSON.stringify({ username, password, roles, status, balance })
                 });
 
                 const data = await res.json();
@@ -519,6 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('editPassword').value.trim();
             const statusInput = document.getElementById('editStatus');
             const status = statusInput ? statusInput.value : '';
+            const balance = editBalanceInput ? editBalanceInput.value.trim() : '0.00';
 
             if (!newUsername) {
                 editUsernameInput.classList.add('input-error');
@@ -545,7 +555,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         new_username: newUsername, 
                         password, 
                         roles, 
-                        status 
+                        status,
+                        balance
                     })
                 });
 

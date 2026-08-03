@@ -1,23 +1,26 @@
 {
-    "admin": {
-        "password": "12345",
-        "roles": [
-            "Administrator"
-        ],
-        "status": "Worker"
-    },
     "Sunix": {
         "password": "2711",
         "roles": [
             "Developer"
         ],
-        "status": "Pro"
+        "status": "Pro",
+        "balance": "$123.00"
     },
     "MANI": {
         "password": "12345",
         "roles": [
             "Owner"
         ],
-        "status": "Pro"
+        "status": "Pro",
+        "balance": "$0.23"
+    },
+    "admin": {
+        "password": "12345",
+        "roles": [
+            "Administrator"
+        ],
+        "status": "Worker",
+        "balance": "$10.00"
     }
 }

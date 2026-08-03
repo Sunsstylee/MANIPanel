@@ -52,6 +52,7 @@
     "role_dobiver": "Dobiver",
     "role_user": "User",
     "amount_label": "AMOUNT",
+    "amount_placeholder": "Amount ($)",
     "users_not_found": "Users not found",
     "edit_btn": "Edit",
     "err_unauthorized": "Unauthorized",

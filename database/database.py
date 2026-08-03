@@ -20,6 +20,23 @@ DEFAULT_SETTINGS = {
     }
 }
 
+def format_balance(val):
+    if val is None or str(val).strip() == "":
+        return "$0.00"
+    val_str = str(val).strip().replace(',', '.')
+    cleaned = ''.join(c for c in val_str if c in ['.', '-'] or c.isdigit())
+    try:
+        num = float(cleaned)
+        num_rounded = round(num, 3)
+        # Если есть 3-й знак после точки (не 0), показываем 3 знака, иначе ровно 2
+        if round(num_rounded * 1000) % 10 != 0:
+            formatted = f"{num_rounded:.3f}"
+        else:
+            formatted = f"{num_rounded:.2f}"
+        return f"${formatted}"
+    except ValueError:
+        return "$0.00"
+
 def load_settings():
     if not os.path.exists(SETTINGS_FILE):
         save_settings(DEFAULT_SETTINGS)
@@ -61,7 +78,8 @@ def normalize_user_data(username, raw_data):
         return {
             "password": raw_data,
             "roles": ["Administrator"] if username.lower() == "admin" else ["User"],
-            "status": "Beginner"
+            "status": "Beginner",
+            "balance": "$0.00"
         }
     
     roles = raw_data.get("roles")
@@ -73,11 +91,13 @@ def normalize_user_data(username, raw_data):
         
     status = raw_data.get("status", "Beginner")
     password = raw_data.get("password", "")
+    balance = raw_data.get("balance", "$0.00")
     
     return {
         "password": password,
         "roles": roles,
-        "status": status
+        "status": status,
+        "balance": format_balance(balance)
     }
 
 def get_all_users():
@@ -128,7 +148,7 @@ def get_users_count():
     users = load_users()
     return len(users)
 
-def add_user(username, password, roles, status):
+def add_user(username, password, roles, status, balance="$0.00"):
     users = load_users()
     if username in users:
         return False, "err_user_exists"
@@ -136,12 +156,13 @@ def add_user(username, password, roles, status):
     users[username] = {
         "password": password,
         "roles": roles if isinstance(roles, list) else [roles],
-        "status": status
+        "status": status,
+        "balance": format_balance(balance)
     }
     save_users(users)
     return True, "msg_account_created"
 
-def update_user(old_username, roles, status, new_password=None, new_username=None):
+def update_user(old_username, roles, status, new_password=None, new_username=None, balance=None):
     users = load_users()
     if old_username not in users:
         return False, "err_user_not_found"
@@ -160,6 +181,8 @@ def update_user(old_username, roles, status, new_password=None, new_username=Non
     current["status"] = status
     if new_password:
         current["password"] = new_password
+    if balance is not None:
+        current["balance"] = format_balance(balance)
         
     users[target_username] = current
     save_users(users)

@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from database.database import (
     get_all_users, add_user, update_user, delete_user, get_users_count,
-    load_settings, save_settings, is_top_admin, get_user_roles, TOP_ROLES
+    load_settings, save_settings, is_top_admin, get_user_roles, TOP_ROLES,
+    format_balance
 )
 from locales.i18n import t
 
@@ -33,13 +34,21 @@ def techpanel():
         
     allowed_roles_lower = {str(r).strip().lower() for r in allowed_roles}
     
-    # Исправлена проверка пересечения ролей
     has_permission = is_top or bool(user_roles_lower & allowed_roles_lower)
     
+    # Подсчет суммы всех балансов
+    total_balance = 0.0
+    for u in users.values():
+        b_str = str(u.get('balance', '0')).replace('$', '').replace(',', '').strip()
+        try:
+            total_balance += float(b_str)
+        except ValueError:
+            pass
+
     sidebar_stats = {
         "users_count": len(users),
         "total_logs": 0,
-        "active_usd": "0.00"
+        "active_usd": format_balance(total_balance)
     }
     
     lang = session.get('lang', 'ru')
@@ -65,7 +74,8 @@ def api_get_users():
         result.append({
             "username": username,
             "roles": data.get("roles", []),
-            "status": data.get("status", "Beginner")
+            "status": data.get("status", "Beginner"),
+            "balance": data.get("balance", "$0.00")
         })
         
     return jsonify({"users": result})
@@ -81,6 +91,7 @@ def api_create_user():
     password = data.get('password', '').strip()
     roles = data.get('roles', [])
     status = data.get('status', 'Beginner')
+    balance = data.get('balance', '$0.00')
 
     if not username or not password:
         return jsonify({'success': False, 'message': t('err_fill_credentials', lang)}), 400
@@ -88,7 +99,7 @@ def api_create_user():
     if not roles:
         roles = ["User"]
 
-    success, msg = add_user(username, password, roles, status)
+    success, msg = add_user(username, password, roles, status, balance)
     return jsonify({'success': success, 'message': t(msg, lang)})
 
 @techpanel_bp.route('/api/users/update', methods=['POST'])
@@ -103,6 +114,7 @@ def api_update_user():
     roles = data.get('roles', [])
     status = data.get('status', 'Beginner')
     new_password = data.get('password', '').strip()
+    balance = data.get('balance')
 
     if not old_username:
         return jsonify({'success': False, 'message': t('err_user_not_specified', lang)}), 400
@@ -118,7 +130,8 @@ def api_update_user():
         roles=roles, 
         status=status, 
         new_password=new_password if new_password else None,
-        new_username=new_username if new_username != old_username else None
+        new_username=new_username if new_username != old_username else None,
+        balance=balance
     )
 
     if success and session.get('username') == old_username and new_username != old_username:
@@ -175,10 +188,6 @@ def api_delete_users_bulk():
         return jsonify({'success': True, 'count': deleted_count, 'errors': errors})
     
     return jsonify({'success': False, 'message': errors[0] if errors else t('err_user_not_specified', lang)}), 400
-
-# ==========================================
-# API ДЛЯ УПРАВЛЕНИЯ САЙТОМ (ТОЛЬКО ДЛЯ TOP_ROLES)
-# ==========================================
 
 @techpanel_bp.route('/api/settings', methods=['GET'])
 def api_get_settings():

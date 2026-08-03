@@ -88,7 +88,7 @@
                     <tr class="user-row" 
                         data-username="{{ username | lower }}"
                         data-roles="{{ user.roles | join(',') | lower }}"
-                        data-amount="{{ user.balance if user.balance is defined else '0' }}">
+                        data-amount="{{ user.balance if user.balance is defined else '$0.00' }}">
                         <td class="select-col">
                             <input type="checkbox" class="user-select-cb row-checkbox" value="{{ username }}">
                         </td>
@@ -113,6 +113,7 @@
                                     data-username="{{ username }}" 
                                     data-status="{{ user.status }}" 
                                     data-roles="{{ user.roles | join(',') }}" 
+                                    data-amount="{{ user.balance if user.balance is defined else '$0.00' }}"
                                     title="{{ t('edit_btn') }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54A.484.484 0 0 0 14 2h-4c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.488.488 0 0 0-.59.22L2.65 8.47a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h4c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 15.6 12 3.6 3.6 0 0 1 12 15.6z"/>
@@ -159,6 +160,9 @@
             </div>
             <div class="input-group">
                 <input type="password" id="createPassword" name="password" placeholder="{{ t('password_placeholder') }}">
+            </div>
+            <div class="input-group">
+                <input type="text" id="createBalance" name="balance" placeholder="{{ t('amount_placeholder') }}" autocomplete="off">
             </div>
 
             <div class="input-group">
@@ -218,6 +222,10 @@
             </div>
 
             <div class="input-group">
+                <input type="text" id="editBalance" name="balance" placeholder="{{ t('amount_placeholder') }}" autocomplete="off">
+            </div>
+
+            <div class="input-group">
                 <label class="group-label">{{ t('role_label') }}</label>
                 <div class="checkbox-grid">
                     {% for role in roles %}
@@ -254,7 +262,7 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/techpanel.js') }}?v=9.7"></script>
+<script src="{{ url_for('static', filename='js/techpanel.js') }}?v=9.8"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var createModal = document.getElementById('createModal');
