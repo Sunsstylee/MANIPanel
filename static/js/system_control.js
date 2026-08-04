@@ -28,10 +28,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Закрытие при клике по фону за пределами карточки
+    // Закрытие при клике по фону за пределами карточки (с защитой от случайного закрытия при выделении текста)
     if (modal) {
+        let isMouseDownOnModal = false;
+
+        modal.addEventListener('mousedown', (e) => {
+            isMouseDownOnModal = (e.target === modal);
+        });
+
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
+            const hasSelection = window.getSelection() && window.getSelection().toString().length > 0;
+            if (e.target === modal && isMouseDownOnModal && !hasSelection) {
                 modal.classList.remove('active');
             }
         });

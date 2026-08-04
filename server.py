@@ -8,7 +8,7 @@ from werkzeug.exceptions import HTTPException
 from routes.auth import auth_bp
 from routes.techpanel import techpanel_bp, VALID_ROLES
 from locales.i18n import t
-from database.database import load_settings, is_top_admin, get_user_roles
+from database.database import load_settings, is_top_admin, get_user_roles, get_sidebar_stats
 
 app = Flask(__name__)
 app.secret_key = "mani_super_secret_key"
@@ -60,7 +60,8 @@ def inject_globals():
         is_top_admin=top_admin,
         access_denied=access_denied,
         site_settings=settings,
-        all_roles=VALID_ROLES
+        all_roles=VALID_ROLES,
+        sidebar_stats=get_sidebar_stats()
     )
 
 @app.before_request
@@ -121,7 +122,6 @@ def log_request(response):
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    # Пропускаем стандартные HTTP-ошибки (404, 403 и т.д.), чтобы не засорять консоль
     if isinstance(e, HTTPException):
         return e
 

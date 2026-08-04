@@ -148,6 +148,22 @@ def get_users_count():
     users = load_users()
     return len(users)
 
+def get_sidebar_stats():
+    users = get_all_users()
+    total_balance = 0.0
+    for u in users.values():
+        b_str = str(u.get('balance', '0')).replace('$', '').replace(',', '').strip()
+        try:
+            total_balance += float(b_str)
+        except ValueError:
+            pass
+
+    return {
+        "users_count": len(users),
+        "total_logs": 0,
+        "active_usd": format_balance(total_balance)
+    }
+
 def add_user(username, password, roles, status, balance="$0.00"):
     users = load_users()
     if username in users:

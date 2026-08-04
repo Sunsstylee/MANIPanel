@@ -387,12 +387,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Защита от закрытия окон при выделении текста со сдвигом за пределы карточки
+    let modalMouseDownTarget = null;
+
+    window.addEventListener('mousedown', (e) => {
+        modalMouseDownTarget = e.target;
+    });
+
     window.addEventListener('click', (e) => {
-        if (e.target === createModal) {
+        const hasSelection = window.getSelection() && window.getSelection().toString().length > 0;
+        if (hasSelection) return;
+
+        if (e.target === createModal && modalMouseDownTarget === createModal) {
             createModal.classList.remove('active');
             resetCreateErrors();
         }
-        if (e.target === editModal) {
+        if (e.target === editModal && modalMouseDownTarget === editModal) {
             editModal.classList.remove('active');
             resetEditErrors();
         }

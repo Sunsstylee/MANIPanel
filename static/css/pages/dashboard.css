@@ -1,3 +1,14 @@
+@keyframes cardPopup {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 .dashboard-wrapper {
     min-height: 100vh;
     display: flex;
@@ -7,12 +18,18 @@
     box-sizing: border-box;
 }
 
-.dashboard-card {
+.dashboard-card,
+.dashboard-header-card {
     width: 100%;
     max-width: 400px;
     padding: 35px;
     box-sizing: border-box;
     text-align: center;
+    animation: cardPopup 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stat-card {
+    animation: cardPopup 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .status-badge {
@@ -71,6 +88,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    animation: cardPopup 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
 }
 
 .info-label {

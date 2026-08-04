@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from database.database import verify_user, get_user_role, get_user_status, get_users_count
+from database.database import verify_user, get_user_role, get_user_status
 from locales.i18n import t
 from functools import wraps
 
@@ -12,16 +12,6 @@ def login_required(f):
             return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
     return decorated_function
-
-@auth_bp.context_processor
-def inject_sidebar_stats():
-    return dict(
-        sidebar_stats={
-            'users_count': get_users_count(),
-            'total_logs': 0,
-            'active_usd': '0.00'
-        }
-    )
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():

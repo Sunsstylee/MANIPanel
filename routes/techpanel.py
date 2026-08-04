@@ -1,14 +1,12 @@
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 from database.database import (
-    get_all_users, add_user, update_user, delete_user, get_users_count,
-    load_settings, save_settings, is_top_admin, get_user_roles, TOP_ROLES,
-    format_balance
+    get_all_users, add_user, update_user, delete_user,
+    load_settings, save_settings, is_top_admin, get_user_roles, TOP_ROLES
 )
 from locales.i18n import t
 
 techpanel_bp = Blueprint('techpanel', __name__, url_prefix='/techpanel')
 
-# Единый список всех ролей сайта
 VALID_ROLES = ["Owner", "Co-Owner", "Developer", "Administrator", "Moderator", "Speaker", "Dobiver", "User"]
 VALID_STATUSES = ["Beginner", "Worker", "Pro"]
 
@@ -36,25 +34,9 @@ def techpanel():
     
     has_permission = is_top or bool(user_roles_lower & allowed_roles_lower)
     
-    # Подсчет суммы всех балансов
-    total_balance = 0.0
-    for u in users.values():
-        b_str = str(u.get('balance', '0')).replace('$', '').replace(',', '').strip()
-        try:
-            total_balance += float(b_str)
-        except ValueError:
-            pass
-
-    sidebar_stats = {
-        "users_count": len(users),
-        "total_logs": 0,
-        "active_usd": format_balance(total_balance)
-    }
-    
     lang = session.get('lang', 'ru')
     return render_template('techpanel/techpanel.html', 
                            users=users,
-                           sidebar_stats=sidebar_stats, 
                            t=lambda key: t(key, lang),
                            roles=VALID_ROLES,
                            statuses=VALID_STATUSES,
