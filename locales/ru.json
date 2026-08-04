@@ -88,5 +88,22 @@
     "access_denied_title": "Доступ ограничен",
     "access_denied_desc": "У вашей роли нет прав для просмотра этого раздела.",
     "save_settings_btn": "Сохранить настройки",
-    "btn_back_login": "Перейти к авторизации"
+    "btn_back_login": "Перейти к авторизации",
+    "chart_finance_title": "Финансовая статистика",
+    "chart_balance_label": "Баланс ($)",
+    "recent_actions_title": "Последние действия",
+    "no_actions_found": "История действий пуста",
+    "action_login": "Вход в систему",
+    "action_deposit": "Пополнение баланса",
+    "action_payout": "Вывод средств",
+    "action_settings_update": "Обновление профиля",
+    "status_success": "Успешно",
+    "status_pending": "В обработке",
+    "details_login_success": "Успешный авторизованный вход",
+    "details_account_created": "Аккаунт создан",
+    "details_profile_updated": "Профиль обновлен",
+    "details_role_changed": "Роль изменена",
+    "details_status_changed": "Статус изменен",
+    "details_password_changed": "Пароль изменен",
+    "details_balance": "Баланс"
 }

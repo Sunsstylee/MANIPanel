@@ -88,5 +88,22 @@
     "access_denied_title": "Access Denied",
     "access_denied_desc": "Your role does not have permission to view this section.",
     "save_settings_btn": "Save Settings",
-    "btn_back_login": "Back to Login"
+    "btn_back_login": "Back to Login",
+    "chart_finance_title": "Financial Statistics",
+    "chart_balance_label": "Balance ($)",
+    "recent_actions_title": "Recent Actions",
+    "no_actions_found": "No action history found",
+    "action_login": "System Login",
+    "action_deposit": "Balance Deposit",
+    "action_payout": "Payout",
+    "action_settings_update": "Profile Update",
+    "status_success": "Success",
+    "status_pending": "Pending",
+    "details_login_success": "Authorized login successful",
+    "details_account_created": "Account created",
+    "details_profile_updated": "Profile updated",
+    "details_role_changed": "Role changed",
+    "details_status_changed": "Status changed",
+    "details_password_changed": "Password changed",
+    "details_balance": "Balance"
 }

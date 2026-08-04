@@ -1,11 +1,11 @@
 import json
 import os
+from datetime import datetime, timedelta
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_FILE = os.path.join(BASE_DIR, "users.json")
 SETTINGS_FILE = os.path.join(BASE_DIR, "settings.json")
 
-# Роли высшего уровня (им всегда доступно всё)
 TOP_ROLES = ["owner", "co-owner", "developer"]
 
 DEFAULT_SETTINGS = {
@@ -28,7 +28,6 @@ def format_balance(val):
     try:
         num = float(cleaned)
         num_rounded = round(num, 3)
-        # Если есть 3-й знак после точки (не 0), показываем 3 знака, иначе ровно 2
         if round(num_rounded * 1000) % 10 != 0:
             formatted = f"{num_rounded:.3f}"
         else:
@@ -36,6 +35,17 @@ def format_balance(val):
         return f"${formatted}"
     except ValueError:
         return "$0.00"
+
+def generate_default_finance_history(current_amount=0.0):
+    today = datetime.now()
+    history = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        date_str = day.strftime("%d.%m")
+        # Для текущего (сегодняшнего) дня ставим актуальный баланс, для прошлых дней 0.0
+        amount = round(float(current_amount), 2) if i == 0 else 0.0
+        history.append({"date": date_str, "amount": amount})
+    return history
 
 def load_settings():
     if not os.path.exists(SETTINGS_FILE):
@@ -73,13 +83,78 @@ def save_users(users):
     with open(USERS_FILE, "w", encoding="utf-8") as f:
         json.dump(users, f, indent=4, ensure_ascii=False)
 
+def log_user_action(username, action_key, status_key="status_success", details=None):
+    users = load_users()
+    if username not in users or isinstance(users[username], str):
+        return
+    
+    actions = users[username].get("recent_actions", [])
+    now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
+    
+    entry = {
+        "action": action_key,
+        "date": now_str,
+        "status": status_key
+    }
+    if details:
+        entry["details"] = details
+        
+    actions.insert(0, entry)
+    users[username]["recent_actions"] = actions[:10]
+    save_users(users)
+
+def record_finance_snapshot(username, amount=None):
+    users = load_users()
+    if username not in users or isinstance(users[username], str):
+        return
+    
+    user = users[username]
+    if amount is None:
+        b_str = str(user.get("balance", "0")).replace('$', '').replace(',', '').strip()
+        try:
+            amount = float(b_str)
+        except ValueError:
+            amount = 0.0
+
+    today_str = datetime.now().strftime("%d.%m")
+    history = user.get("finance_history", [])
+    
+    if len(history) < 7:
+        # Если точек меньше 7, достраиваем полные 7 дней
+        full_history = generate_default_finance_history(amount)
+        # Сохраняем уже имеющиеся точные точки
+        hist_dict = {item["date"]: item["amount"] for item in history}
+        for item in full_history:
+            if item["date"] in hist_dict:
+                item["amount"] = hist_dict[item["date"]]
+        item_today = next((x for x in full_history if x["date"] == today_str), None)
+        if item_today:
+            item_today["amount"] = round(amount, 2)
+        history = full_history
+    else:
+        updated = False
+        for entry in history:
+            if entry.get("date") == today_str:
+                entry["amount"] = round(amount, 2)
+                updated = True
+                break
+        if not updated:
+            history.append({"date": today_str, "amount": round(amount, 2)})
+
+    users[username]["finance_history"] = history[-7:]
+    save_users(users)
+
 def normalize_user_data(username, raw_data):
+    today_str = datetime.now().strftime("%d.%m")
+    
     if isinstance(raw_data, str):
         return {
             "password": raw_data,
             "roles": ["Administrator"] if username.lower() == "admin" else ["User"],
             "status": "Beginner",
-            "balance": "$0.00"
+            "balance": "$0.00",
+            "finance_history": generate_default_finance_history(0.0),
+            "recent_actions": []
         }
     
     roles = raw_data.get("roles")
@@ -93,11 +168,25 @@ def normalize_user_data(username, raw_data):
     password = raw_data.get("password", "")
     balance = raw_data.get("balance", "$0.00")
     
+    b_val = 0.0
+    try:
+        b_val = float(str(balance).replace('$', '').replace(',', '').strip())
+    except ValueError:
+        pass
+
+    finance_history = raw_data.get("finance_history", [])
+    if not finance_history or len(finance_history) < 7:
+        finance_history = generate_default_finance_history(b_val)
+
+    recent_actions = raw_data.get("recent_actions", [])
+    
     return {
         "password": password,
         "roles": roles,
         "status": status,
-        "balance": format_balance(balance)
+        "balance": format_balance(balance),
+        "finance_history": finance_history[-7:],
+        "recent_actions": recent_actions[:10]
     }
 
 def get_all_users():
@@ -112,9 +201,13 @@ def verify_user(username, password):
     user_data = users.get(username)
     if not user_data:
         return False
-    if isinstance(user_data, str):
-        return user_data == password
-    return user_data.get("password") == password
+    
+    pwd = user_data if isinstance(user_data, str) else user_data.get("password")
+    if pwd == password:
+        log_user_action(username, "action_login", "status_success", details="details_login_success")
+        record_finance_snapshot(username)
+        return True
+    return False
 
 def get_user_roles(username):
     users = load_users()
@@ -144,6 +237,29 @@ def get_user_status(username):
     norm = normalize_user_data(username, user_data)
     return norm.get("status", "Beginner")
 
+def get_user_finance_data(username):
+    users = load_users()
+    user_data = users.get(username)
+    if not user_data:
+        default_hist = generate_default_finance_history(0.0)
+        return {
+            "labels": [i["date"] for i in default_hist],
+            "values": [i["amount"] for i in default_hist]
+        }
+    norm = normalize_user_data(username, user_data)
+    history = norm.get("finance_history", [])
+    labels = [item.get("date", "") for item in history]
+    values = [item.get("amount", 0) for item in history]
+    return {"labels": labels, "values": values}
+
+def get_user_recent_actions(username):
+    users = load_users()
+    user_data = users.get(username)
+    if not user_data:
+        return []
+    norm = normalize_user_data(username, user_data)
+    return norm.get("recent_actions", [])
+
 def get_users_count():
     users = load_users()
     return len(users)
@@ -169,11 +285,27 @@ def add_user(username, password, roles, status, balance="$0.00"):
     if username in users:
         return False, "err_user_exists"
     
+    formatted_b = format_balance(balance)
+    b_val = 0.0
+    try:
+        b_val = float(str(formatted_b).replace('$', '').replace(',', '').strip())
+    except ValueError:
+        pass
+
+    now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
+
     users[username] = {
         "password": password,
         "roles": roles if isinstance(roles, list) else [roles],
         "status": status,
-        "balance": format_balance(balance)
+        "balance": formatted_b,
+        "finance_history": generate_default_finance_history(b_val),
+        "recent_actions": [{
+            "action": "action_login",
+            "date": now_str,
+            "status": "status_success",
+            "details": "details_account_created"
+        }]
     }
     save_users(users)
     return True, "msg_account_created"
@@ -189,11 +321,22 @@ def update_user(old_username, roles, status, new_password=None, new_username=Non
     if new_username and new_username != old_username:
         if new_username in users:
             return False, "err_user_exists"
-        
         del users[old_username]
         target_username = new_username
 
-    current["roles"] = roles if isinstance(roles, list) else [roles]
+    roles_list = roles if isinstance(roles, list) else [roles]
+    
+    changes = []
+    if current.get("roles") != roles_list:
+        changes.append("details_role_changed")
+    if current.get("status") != status:
+        changes.append("details_status_changed")
+    if new_password:
+        changes.append("details_password_changed")
+    if balance is not None and current.get("balance") != format_balance(balance):
+        changes.append(f"details_balance: {format_balance(balance)}")
+
+    current["roles"] = roles_list
     current["status"] = status
     if new_password:
         current["password"] = new_password
@@ -202,6 +345,17 @@ def update_user(old_username, roles, status, new_password=None, new_username=Non
         
     users[target_username] = current
     save_users(users)
+
+    details_str = ", ".join(changes) if changes else "details_profile_updated"
+    log_user_action(target_username, "action_settings_update", "status_success", details=details_str)
+
+    if balance is not None:
+        try:
+            b_val = float(str(balance).replace('$', '').replace(',', '').strip())
+            record_finance_snapshot(target_username, b_val)
+        except ValueError:
+            pass
+
     return True, "msg_account_updated"
 
 def delete_user(username):

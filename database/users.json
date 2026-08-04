@@ -5,7 +5,75 @@
             "Developer"
         ],
         "status": "Pro",
-        "balance": "$123.00"
+        "balance": "$12814.84",
+        "finance_history": [
+            {
+                "date": "30.07",
+                "amount": 120.0
+            },
+            {
+                "date": "31.07",
+                "amount": 250.5
+            },
+            {
+                "date": "01.08",
+                "amount": 310.0
+            },
+            {
+                "date": "02.08",
+                "amount": 420.15
+            },
+            {
+                "date": "03.08",
+                "amount": 390.0
+            },
+            {
+                "date": "04.08",
+                "amount": 610.8
+            },
+            {
+                "date": "05.08",
+                "amount": 12814.84
+            }
+        ],
+        "recent_actions": [
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 02:13",
+                "status": "status_success",
+                "details": "details_balance: $12814.84"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:12",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:10",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:09",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 01:59",
+                "status": "status_success",
+                "details": "details_balance: $846.45"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 01:55",
+                "status": "status_success",
+                "details": "details_login_success"
+            }
+        ]
     },
     "MANI": {
         "password": "12345",
@@ -13,7 +81,51 @@
             "Owner"
         ],
         "status": "Pro",
-        "balance": "$0.23"
+        "balance": "$16941.35",
+        "finance_history": [
+            {
+                "date": "30.07",
+                "amount": 0.0
+            },
+            {
+                "date": "31.07",
+                "amount": 0.0
+            },
+            {
+                "date": "01.08",
+                "amount": 0.0
+            },
+            {
+                "date": "02.08",
+                "amount": 0.0
+            },
+            {
+                "date": "03.08",
+                "amount": 0.0
+            },
+            {
+                "date": "04.08",
+                "amount": 0.0
+            },
+            {
+                "date": "05.08",
+                "amount": 16941.35
+            }
+        ],
+        "recent_actions": [
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 02:13",
+                "status": "status_success",
+                "details": "details_balance: $16941.35"
+            },
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 02:13",
+                "status": "status_success",
+                "details": "details_balance: $8246.69"
+            }
+        ]
     },
     "admin": {
         "password": "12345",
@@ -21,6 +133,50 @@
             "Administrator"
         ],
         "status": "Worker",
-        "balance": "$395.45"
+        "balance": "$395.45",
+        "finance_history": [
+            {
+                "date": "30.07",
+                "amount": 0.0
+            },
+            {
+                "date": "31.07",
+                "amount": 0.0
+            },
+            {
+                "date": "01.08",
+                "amount": 0.0
+            },
+            {
+                "date": "02.08",
+                "amount": 0.0
+            },
+            {
+                "date": "03.08",
+                "amount": 0.0
+            },
+            {
+                "date": "04.08",
+                "amount": 0.0
+            },
+            {
+                "date": "05.08",
+                "amount": 395.45
+            }
+        ],
+        "recent_actions": [
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:11",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:05",
+                "status": "status_success",
+                "details": "details_login_success"
+            }
+        ]
     }
 }

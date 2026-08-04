@@ -2,31 +2,148 @@
 
 {% block title %}{{ t('nav_title_dashboard') }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/dashboard.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="dashboard-container">
-    <div class="glow-blob glow-blob-1"></div>
-    <div class="glow-blob glow-blob-2"></div>
-
     <div class="dashboard-header-card glass-panel">
         <h1>{{ t('dashboard_header') }}</h1>
         <p>{{ t('welcome') }}, <strong>{{ username }}</strong>!</p>
     </div>
 
+    <!-- Карточки пользователя -->
     <div class="stats-grid">
         <div class="stat-card glass-panel">
             <div class="stat-title">{{ t('user_label') }}</div>
             <div class="stat-value">{{ username }}</div>
         </div>
-        
         <div class="stat-card glass-panel">
             <div class="stat-title">{{ t('role_label') }}</div>
-            <div class="stat-value">{{ role }}</div>
+            <div class="stat-value text-accent">{{ role }}</div>
         </div>
-
         <div class="stat-card glass-panel">
             <div class="stat-title">{{ t('status_label') }}</div>
-            <div class="stat-value">{{ status }}</div>
+            <div class="stat-value text-success">{{ status }}</div>
+        </div>
+    </div>
+
+    <!-- График + Последние действия -->
+    <div class="dash-sections-grid">
+        <div class="dashboard-card-section glass-panel">
+            <div class="section-title">{{ t('chart_finance_title') }}</div>
+            <div class="chart-container">
+                <canvas id="financeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="dashboard-card-section glass-panel">
+            <div class="section-title">{{ t('recent_actions_title') }}</div>
+            <div class="actions-list">
+                {% if recent_actions %}
+                    {% for item in recent_actions %}
+                    <div class="action-item">
+                        <div class="action-info">
+                            <span class="action-name">
+                                {{ t(item.action) if t(item.action) else item.action }}
+                                {% if item.details %}
+                                    <span class="action-details">(
+                                    {%- set ns = namespace(parts=[]) -%}
+                                    {%- for sub in item.details.split(', ') -%}
+                                        {%- if ':' in sub -%}
+                                            {%- set pair = sub.split(':', 1) -%}
+                                            {%- set key = pair[0] | trim -%}
+                                            {%- set val = pair[1] | trim -%}
+                                            {%- set translated = (t(key) if t(key) else key) ~ ': ' ~ val -%}
+                                            {%- set _ = ns.parts.append(translated) -%}
+                                        {%- else -%}
+                                            {%- set _ = ns.parts.append(t(sub) if t(sub) else sub) -%}
+                                        {%- endif -%}
+                                    {%- endfor -%}
+                                    {{ ns.parts | join(', ') }}
+                                    )</span>
+                                {% endif %}
+                            </span>
+                            <span class="action-date">{{ item.date }}</span>
+                        </div>
+                        <span class="action-status status-{{ item.status | lower }}">
+                            {{ t(item.status) if t(item.status) else item.status }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-actions">{{ t('no_actions_found') }}</div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById('financeChart').getContext('2d');
+    const labels = {{ finance_labels | tojson }};
+    const values = {{ finance_values | tojson }};
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+    gradient.addColorStop(0, 'rgba(0, 194, 255, 0.35)');
+    gradient.addColorStop(1, 'rgba(0, 194, 255, 0.0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "{{ t('chart_balance_label') }}",
+                data: values,
+                borderColor: '#00c2ff',
+                borderWidth: 2,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.2,
+                pointBackgroundColor: '#00c2ff',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    position: 'nearest',
+                    callbacks: {
+                        label: function(context) {
+                            return "{{ t('chart_balance_label') }}: $" + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { 
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                    ticks: { color: 'rgba(255, 255, 255, 0.5)' } 
+                },
+                y: { 
+                    min: 0,
+                    grace: '10%',
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                    ticks: { color: 'rgba(255, 255, 255, 0.5)', callback: v => '$' + v } 
+                }
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

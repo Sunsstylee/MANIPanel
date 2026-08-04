@@ -1,5 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
-from database.database import verify_user, get_user_role, get_user_status
+from database.database import (
+    verify_user, get_user_role, get_user_status, 
+    get_user_finance_data, get_user_recent_actions
+)
 from locales.i18n import t
 from functools import wraps
 
@@ -47,7 +50,19 @@ def dashboard():
     username = session.get('username')
     role = get_user_role(username)
     status = get_user_status(username)
-    return render_template('auth/dashboard.html', username=username, role=role, status=status, t=lambda key: t(key, lang))
+    finance_data = get_user_finance_data(username) or {}
+    recent_actions = get_user_recent_actions(username) or []
+    
+    return render_template(
+        'auth/dashboard.html', 
+        username=username, 
+        role=role, 
+        status=status, 
+        finance_labels=finance_data.get('labels', []),
+        finance_values=finance_data.get('values', []),
+        recent_actions=recent_actions,
+        t=lambda key: t(key, lang)
+    )
 
 @auth_bp.route('/logs')
 @login_required

@@ -12,6 +12,8 @@
     {% if request.endpoint == 'auth.login' %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/login.css') }}">
     {% endif %}
+
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 
