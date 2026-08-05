@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('nav_title_logs') }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/logs.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="logs-container">
+    
+    <!-- Панель фильтров и поиска -->
+    <div class="logs-header-card glass-panel">
+        <div class="filter-tabs">
+            <a href="{{ url_for('logs.logs') }}" class="filter-tab {% if current_filter == 'all' %}active{% endif %}">
+                {{ t('filter_all') }}
+            </a>
+            <a href="{{ url_for('logs.logs', filter='accepted') }}" class="filter-tab {% if current_filter == 'accepted' %}active{% endif %}">
+                accepted
+            </a>
+            <a href="{{ url_for('logs.logs', filter='sent') }}" class="filter-tab {% if current_filter == 'sent' %}active{% endif %}">
+                sent
+            </a>
+            <a href="{{ url_for('logs.logs', filter='unpaid') }}" class="filter-tab {% if current_filter == 'unpaid' %}active{% endif %}">
+                {{ t('filter_unpaid') }}
+            </a>
+            <a href="{{ url_for('logs.logs', filter='hold') }}" class="filter-tab {% if current_filter == 'hold' %}active{% endif %}">
+                Hold
+            </a>
+            <a href="{{ url_for('logs.logs', filter='cs') }}" class="filter-tab {% if current_filter == 'cs' %}active{% endif %}">
+                CS
+            </a>
+        </div>
+
+        <div class="logs-search-box">
+            <input type="text" id="logsSearchInput" placeholder="{{ t('search_placeholder') }}" value="{{ search_query }}">
+            <span class="search-icon">🔍</span>
+        </div>
+    </div>
+
+    <!-- Основная таблица логов -->
+    <div class="logs-table-card glass-panel">
+        <div class="table-responsive">
+            <table class="logs-table">
+                <thead>
+                    <tr>
+                        <th class="col-id">#</th>
+                        <th class="col-items">{{ t('col_items') }}</th>
+                        <th class="col-price">{{ t('col_price') }}</th>
+                        <th class="col-status">{{ t('col_status') }}</th>
+                        <th class="col-game">{{ t('col_game') }}</th>
+                        <th class="col-offer">{{ t('col_offer_id') }}</th>
+                        <th class="col-steam">{{ t('col_steam_id') }}</th>
+                        <th class="col-spamer">{{ t('col_spamer') }}</th>
+                        <th class="col-payout">{{ t('col_payout') }}</th>
+                        <th class="col-date">{{ t('col_date') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if logs %}
+                        {% for log in logs %}
+                        <tr class="log-row">
+                            <td class="col-id font-mono">#{{ log.id }}</td>
+                            
+                            <td class="col-items">
+                                <div class="items-wrapper">
+                                    {% for item in log['items'] %}
+                                        <div class="item-name">{{ item }}</div>
+                                    {% endfor %}
+                                    {% if log.extra_items_count %}
+                                        <span class="items-badge">+{{ log.extra_items_count }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td class="col-price font-bold">${{ "%.2f"|format(log.price) }}</td>
+
+                            <td class="col-status">
+                                <div class="status-stack">
+                                    <span class="status-badge status-{{ log.status }}">{{ log.status }}</span>
+                                    {% if log.hold_time %}
+                                        <span class="hold-badge">[Hold: {{ log.hold_time }}]</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <td class="col-game">
+                                <span class="game-badge">{{ log.game }}</span>
+                            </td>
+
+                            <td class="col-offer font-mono text-muted">{{ log.offer_id }}</td>
+
+                            <td class="col-steam font-mono font-bold">{{ log.steam_id }}</td>
+
+                            <td class="col-spamer">
+                                <div class="spamer-tag">
+                                    <span class="tag-icon">🏷️</span>
+                                    <span class="spamer-name">{{ log.spamer }}</span>
+                                </div>
+                            </td>
+
+                            <td class="col-payout">
+                                {% if log.payout_status == 'unpaid' %}
+                                    <span class="payout-badge payout-unpaid">{{ t('payout_unpaid') }}</span>
+                                    <button class="details-btn" onclick="openDetailsModal('{{ log.id }}')">{{ t('btn_details') }}</button>
+                                {% elif log.payout_status == 'paid' %}
+                                    <span class="payout-badge payout-paid">{{ t('payout_paid') }}</span>
+                                    <button class="details-btn" onclick="openDetailsModal('{{ log.id }}')">{{ t('btn_details') }}</button>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <td class="col-date font-mono text-muted">{{ log.date }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="10" class="empty-table">{{ t('no_logs_found') }}</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

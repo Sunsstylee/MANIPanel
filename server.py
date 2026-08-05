@@ -7,6 +7,7 @@ from flask import Flask, redirect, url_for, session, request, render_template
 from werkzeug.exceptions import HTTPException
 from routes.auth import auth_bp
 from routes.techpanel import techpanel_bp, VALID_ROLES
+from routes.logs import logs_bp
 from locales.i18n import t
 from database.database import load_settings, is_top_admin, get_user_roles, get_sidebar_stats
 
@@ -17,7 +18,7 @@ app.secret_key = "mani_super_secret_key"
 ROUTE_PAGE_MAP = {
     'auth.dashboard': 'dashboard',
     'techpanel.techpanel': 'techpanel',
-    'auth.logs': 'logs',
+    'logs.logs': 'logs',
     'auth.actions': 'actions',
     'auth.replacements': 'replacements',
     'auth.clients': 'clients'
@@ -98,6 +99,7 @@ def favicon():
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(techpanel_bp)
+app.register_blueprint(logs_bp)
 
 @app.route('/')
 def index():

@@ -1,0 +1,262 @@
+/* Единая каскадная анимация появления */
+@keyframes popUp {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.logs-header-card,
+.logs-table-card {
+    animation: popUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.logs-header-card { animation-delay: 0.04s; }
+.logs-table-card { animation-delay: 0.12s; }
+
+/* Карточка фильтров */
+.logs-header-card {
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.filter-tab:hover,
+.filter-tab.active {
+    color: var(--text-main);
+    background: rgba(0, 194, 255, 0.12);
+    border-color: rgba(0, 194, 255, 0.3);
+}
+
+.logs-search-box {
+    position: relative;
+    min-width: 240px;
+}
+
+.logs-search-box input {
+    width: 100%;
+    padding: 8px 36px 8px 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-size: 12px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.logs-search-box input:focus {
+    border-color: rgba(0, 194, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 194, 255, 0.15);
+}
+
+.logs-search-box .search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+/* Таблица */
+.logs-table-card {
+    padding: 16px;
+    border-radius: 14px;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.logs-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+}
+
+.logs-table th {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 14px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.logs-table td {
+    padding: 12px 14px;
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.logs-table tr.log-row td:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-left: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.logs-table tr.log-row td:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.logs-table tr.log-row:hover td {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(0, 194, 255, 0.2);
+}
+
+/* Элементы внутри колонок */
+.font-mono { font-family: monospace; }
+.font-bold { font-weight: 700; }
+.text-muted { color: var(--text-muted); }
+
+.items-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.item-name {
+    font-size: 12px;
+    color: var(--text-main);
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.items-badge {
+    display: inline-block;
+    width: fit-content;
+    margin-top: 4px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+}
+
+/* Статусы */
+.status-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    width: fit-content;
+}
+
+.status-accepted {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-sent {
+    background: rgba(0, 194, 255, 0.12);
+    color: #00c2ff;
+    border: 1px solid rgba(0, 194, 255, 0.3);
+}
+
+.hold-badge {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.game-badge {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Спамер / Зазывала */
+.spamer-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.spamer-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* Выплаты */
+.col-payout {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.payout-badge {
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.payout-unpaid { color: #ef4444; }
+.payout-paid { color: #22c55e; }
+
+.details-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 10px;
+    font-style: italic;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.details-btn:hover { color: var(--text-main); }
+
+.empty-table {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--text-muted);
+}

@@ -39,6 +39,36 @@
         "recent_actions": [
             {
                 "action": "action_login",
+                "date": "05.08.2026 22:21",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 22:20",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 22:20",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 22:20",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 22:20",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
                 "date": "05.08.2026 02:42",
                 "status": "status_success",
                 "details": "details_login_success"
@@ -64,24 +94,6 @@
             {
                 "action": "action_login",
                 "date": "05.08.2026 02:10",
-                "status": "status_success",
-                "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "05.08.2026 02:09",
-                "status": "status_success",
-                "details": "details_login_success"
-            },
-            {
-                "action": "action_settings_update",
-                "date": "05.08.2026 01:59",
-                "status": "status_success",
-                "details": "details_balance: $846.45"
-            },
-            {
-                "action": "action_login",
-                "date": "05.08.2026 01:55",
                 "status": "status_success",
                 "details": "details_login_success"
             }
@@ -185,6 +197,12 @@
         ],
         "recent_actions": [
             {
+                "action": "action_login",
+                "date": "05.08.2026 22:20",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
                 "action": "action_settings_update",
                 "date": "05.08.2026 02:42",
                 "status": "status_success",
@@ -235,12 +253,6 @@
             {
                 "action": "action_login",
                 "date": "05.08.2026 02:11",
-                "status": "status_success",
-                "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "05.08.2026 02:05",
                 "status": "status_success",
                 "details": "details_login_success"
             }

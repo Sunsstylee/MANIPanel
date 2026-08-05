@@ -42,7 +42,6 @@ def generate_default_finance_history(current_amount=0.0):
     for i in range(6, -1, -1):
         day = today - timedelta(days=i)
         date_str = day.strftime("%d.%m")
-        # Для текущего (сегодняшнего) дня ставим актуальный баланс, для прошлых дней 0.0
         amount = round(float(current_amount), 2) if i == 0 else 0.0
         history.append({"date": date_str, "amount": amount})
     return history
@@ -120,9 +119,7 @@ def record_finance_snapshot(username, amount=None):
     history = user.get("finance_history", [])
     
     if len(history) < 7:
-        # Если точек меньше 7, достраиваем полные 7 дней
         full_history = generate_default_finance_history(amount)
-        # Сохраняем уже имеющиеся точные точки
         hist_dict = {item["date"]: item["amount"] for item in history}
         for item in full_history:
             if item["date"] in hist_dict:
@@ -279,6 +276,47 @@ def get_sidebar_stats():
         "total_logs": 0,
         "active_usd": format_balance(total_balance)
     }
+
+def get_top_users(limit=10):
+    users = get_all_users()
+    sorted_users = []
+    for username, data in users.items():
+        b_str = str(data.get('balance', '0')).replace('$', '').replace(',', '').strip()
+        try:
+            val = float(b_str)
+        except ValueError:
+            val = 0.0
+        sorted_users.append({'username': username, 'amount': data.get('balance', '$0.00'), 'val': val})
+    
+    sorted_users.sort(key=lambda x: x['val'], reverse=True)
+    top = []
+    for idx, u in enumerate(sorted_users[:limit], 1):
+        top.append({
+            'rank': idx,
+            'username': u['username'],
+            'amount': u['amount']
+        })
+    return top
+
+def get_top_speakers(limit=10):
+    users = get_all_users()
+    speakers = []
+    
+    for username, data in users.items():
+        roles_lower = [str(r).lower() for r in data.get('roles', [])]
+        if 'speaker' in roles_lower or 'спикер' in roles_lower:
+            success_count = sum(1 for a in data.get('recent_actions', []) if a.get('status') in ['status_success', 'success', 'успешно'])
+            speakers.append({'username': username, 'logs_count': success_count})
+
+    speakers.sort(key=lambda x: x['logs_count'], reverse=True)
+    top = []
+    for idx, s in enumerate(speakers[:limit], 1):
+        top.append({
+            'rank': idx,
+            'username': s['username'],
+            'logs_count': s['logs_count']
+        })
+    return top
 
 def add_user(username, password, roles, status, balance="$0.00"):
     users = load_users()

@@ -78,6 +78,69 @@
             </div>
         </div>
     </div>
+
+    <!-- Топ Спикеров + Топ Пользователей -->
+    <div class="dash-sections-grid top-lists-grid">
+        <div class="dashboard-card-section glass-panel">
+            <div class="section-title">{{ t('top_speakers_title') }}</div>
+            <div class="top-list-container">
+                {% if top_speakers %}
+                    <table class="top-table">
+                        <thead>
+                            <tr>
+                                <th class="col-rank">{{ t('col_rank') }}</th>
+                                <th class="col-user">{{ t('col_user') }}</th>
+                                <th class="col-stat text-right">{{ t('col_logs') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for speaker in top_speakers %}
+                            <tr class="top-item">
+                                <td class="rank-cell">
+                                    <span class="rank-badge rank-{{ speaker.rank }}">{{ speaker.rank }}</span>
+                                </td>
+                                <td class="user-cell">{{ speaker.username }}</td>
+                                <td class="stat-cell text-right text-success">{{ speaker.logs_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-actions">{{ t('no_actions_found') }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dashboard-card-section glass-panel">
+            <div class="section-title">{{ t('top_users_title') }}</div>
+            <div class="top-list-container">
+                {% if top_users %}
+                    <table class="top-table">
+                        <thead>
+                            <tr>
+                                <th class="col-rank">{{ t('col_rank') }}</th>
+                                <th class="col-user">{{ t('col_user') }}</th>
+                                <th class="col-stat text-right">{{ t('col_amount') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in top_users %}
+                            <tr class="top-item">
+                                <td class="rank-cell">
+                                    <span class="rank-badge rank-{{ u.rank }}">{{ u.rank }}</span>
+                                </td>
+                                <td class="user-cell">{{ u.username }}</td>
+                                <td class="stat-cell text-right text-accent">{{ u.amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="empty-actions">{{ t('no_actions_found') }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

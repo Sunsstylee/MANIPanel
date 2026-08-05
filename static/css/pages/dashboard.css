@@ -1,16 +1,49 @@
-/* Анимация плавного всплытия */
+/* Единая динамичная каскадная анимация */
 @keyframes popUp {
     0% {
         opacity: 0;
-        transform: translateY(25px) scale(0.98);
+        transform: translateY(12px);
     }
     100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
-/* Основная сетка блоков графиков и действий */
+/* Привязка базовой анимации к блокам */
+.dashboard-header-card,
+.stat-card,
+.dashboard-card-section {
+    animation: popUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 1. Верхний заголовок панели */
+.dashboard-header-card {
+    animation-delay: 0.04s;
+}
+
+/* 2. Три верхние карточки пользователя (Пользователь / Роль / Статус) */
+.stats-grid > .stat-card:nth-child(1) { animation-delay: 0.08s; }
+.stats-grid > .stat-card:nth-child(2) { animation-delay: 0.12s; }
+.stats-grid > .stat-card:nth-child(3) { animation-delay: 0.16s; }
+
+/* 3. Средний ряд (Финансовая статистика + Последние действия) */
+.dash-sections-grid:not(.top-lists-grid) > .dashboard-card-section:nth-child(1) {
+    animation-delay: 0.20s;
+}
+.dash-sections-grid:not(.top-lists-grid) > .dashboard-card-section:nth-child(2) {
+    animation-delay: 0.24s;
+}
+
+/* 4. Нижний ряд (Топ спикеров + Топ пользователей) */
+.top-lists-grid > .dashboard-card-section:nth-child(1) {
+    animation-delay: 0.28s;
+}
+.top-lists-grid > .dashboard-card-section:nth-child(2) {
+    animation-delay: 0.32s;
+}
+
+/* Сетки и размеры */
 .dash-sections-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -29,17 +62,6 @@
     border-radius: 14px;
     display: flex;
     flex-direction: column;
-    /* Анимация всплытия при загрузке */
-    animation: popUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* Поочередное появление: сначала график, затем последние действия */
-.dash-sections-grid > .dashboard-card-section:nth-child(1) {
-    animation-delay: 0.1s;
-}
-
-.dash-sections-grid > .dashboard-card-section:nth-child(2) {
-    animation-delay: 0.25s;
 }
 
 .section-title {
@@ -57,7 +79,7 @@
     width: 100%;
 }
 
-/* Список действий */
+/* Список последних действий */
 .actions-list {
     display: flex;
     flex-direction: column;
@@ -141,4 +163,108 @@
 
 .text-success {
     color: #22c55e !important;
+}
+
+/* Стили для таблиц топов */
+.top-list-container {
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.top-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+}
+
+.top-table th {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 12px 6px 12px;
+}
+
+.top-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s ease;
+}
+
+.top-table tr.top-item td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.top-table tr.top-item td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.top-table tr.top-item:hover td {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(0, 194, 255, 0.2);
+}
+
+.col-rank {
+    width: 45px;
+}
+
+.col-user {
+    text-align: left;
+}
+
+.col-stat {
+    width: 110px;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.user-cell {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.stat-cell {
+    font-weight: 700;
+}
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-muted);
+}
+
+.rank-badge.rank-1 {
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+}
+
+.rank-badge.rank-2 {
+    background: rgba(192, 192, 192, 0.2);
+    color: #c0c0c0;
+    border: 1px solid rgba(192, 192, 192, 0.4);
+}
+
+.rank-badge.rank-3 {
+    background: rgba(205, 127, 50, 0.2);
+    color: #cd7f32;
+    border: 1px solid rgba(205, 127, 50, 0.4);
 }
