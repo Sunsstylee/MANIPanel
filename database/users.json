@@ -38,6 +38,18 @@
         ],
         "recent_actions": [
             {
+                "action": "action_login",
+                "date": "05.08.2026 02:42",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:21",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
                 "action": "action_settings_update",
                 "date": "05.08.2026 02:13",
                 "status": "status_success",
@@ -114,6 +126,12 @@
         ],
         "recent_actions": [
             {
+                "action": "action_login",
+                "date": "05.08.2026 02:42",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
                 "action": "action_settings_update",
                 "date": "05.08.2026 02:13",
                 "status": "status_success",
@@ -127,13 +145,14 @@
             }
         ]
     },
-    "admin": {
+    "dk3": {
         "password": "12345",
         "roles": [
-            "Administrator"
+            "Co-Owner",
+            "Speaker"
         ],
         "status": "Worker",
-        "balance": "$395.45",
+        "balance": "$14682.37",
         "finance_history": [
             {
                 "date": "30.07",
@@ -161,10 +180,58 @@
             },
             {
                 "date": "05.08",
-                "amount": 395.45
+                "amount": 14682.37
             }
         ],
         "recent_actions": [
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 02:42",
+                "status": "status_success",
+                "details": "details_balance: $14682.37"
+            },
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 02:42",
+                "status": "status_success",
+                "details": "details_balance: $4682.37"
+            },
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 02:42",
+                "status": "status_success",
+                "details": "details_balance: $2436634.00"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:42",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 02:41",
+                "status": "status_success",
+                "details": "details_role_changed"
+            },
+            {
+                "action": "action_settings_update",
+                "date": "05.08.2026 02:41",
+                "status": "status_success",
+                "details": "details_password_changed"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:21",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "05.08.2026 02:20",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
             {
                 "action": "action_login",
                 "date": "05.08.2026 02:11",
