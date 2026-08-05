@@ -16,19 +16,19 @@
                 {{ t('filter_all') }}
             </a>
             <a href="{{ url_for('logs.logs', filter='accepted') }}" class="filter-tab {% if current_filter == 'accepted' %}active{% endif %}">
-                accepted
+                {{ t('filter_accepted') }}
             </a>
             <a href="{{ url_for('logs.logs', filter='sent') }}" class="filter-tab {% if current_filter == 'sent' %}active{% endif %}">
-                sent
+                {{ t('filter_sent') }}
             </a>
             <a href="{{ url_for('logs.logs', filter='unpaid') }}" class="filter-tab {% if current_filter == 'unpaid' %}active{% endif %}">
                 {{ t('filter_unpaid') }}
             </a>
             <a href="{{ url_for('logs.logs', filter='hold') }}" class="filter-tab {% if current_filter == 'hold' %}active{% endif %}">
-                Hold
+                {{ t('filter_hold') }}
             </a>
             <a href="{{ url_for('logs.logs', filter='cs') }}" class="filter-tab {% if current_filter == 'cs' %}active{% endif %}">
-                CS
+                {{ t('filter_cs') }}
             </a>
         </div>
 
@@ -38,7 +38,7 @@
         </div>
     </div>
 
-    <!-- Основная таблица логов -->
+    <!-- Таблица логов -->
     <div class="logs-table-card glass-panel">
         <div class="table-responsive">
             <table class="logs-table">
@@ -60,26 +60,37 @@
                     {% if logs %}
                         {% for log in logs %}
                         <tr class="log-row">
-                            <td class="col-id font-mono">#{{ log.id }}</td>
+                            <td class="col-id font-mono">{{ log.id }}</td>
                             
                             <td class="col-items">
                                 <div class="items-wrapper">
                                     {% for item in log['items'] %}
-                                        <div class="item-name">{{ item }}</div>
+                                        <div class="item-name" title="{{ item }}">{{ item }}</div>
                                     {% endfor %}
-                                    {% if log.extra_items_count %}
-                                        <span class="items-badge">+{{ log.extra_items_count }}</span>
+                                    
+                                    {% if log.get('extra_items') %}
+                                        <div class="items-badge-wrapper">
+                                            <span class="items-badge" onclick="toggleExtraItems(event, this)">+{{ log.extra_items|length }}</span>
+                                            <div class="extra-items-dropdown">
+                                                <div class="dropdown-header">{{ t('extra_items_title') }}</div>
+                                                <ul class="extra-items-list">
+                                                    {% for extra in log['extra_items'] %}
+                                                        <li>{{ extra }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
                                     {% endif %}
                                 </div>
                             </td>
 
-                            <td class="col-price font-bold">${{ "%.2f"|format(log.price) }}</td>
+                            <td class="col-price font-bold">{{ log.price }}</td>
 
                             <td class="col-status">
                                 <div class="status-stack">
                                     <span class="status-badge status-{{ log.status }}">{{ log.status }}</span>
                                     {% if log.hold_time %}
-                                        <span class="hold-badge">[Hold: {{ log.hold_time }}]</span>
+                                        <span class="hold-badge">[Hold:{{ log.hold_time }}]</span>
                                     {% endif %}
                                 </div>
                             </td>
@@ -93,21 +104,18 @@
                             <td class="col-steam font-mono font-bold">{{ log.steam_id }}</td>
 
                             <td class="col-spamer">
-                                <div class="spamer-tag">
+                                <div class="spamer-container">
                                     <span class="tag-icon">🏷️</span>
                                     <span class="spamer-name">{{ log.spamer }}</span>
+                                    <button class="spamer-search-btn" title="Детали">🔍</button>
                                 </div>
                             </td>
 
                             <td class="col-payout">
                                 {% if log.payout_status == 'unpaid' %}
                                     <span class="payout-badge payout-unpaid">{{ t('payout_unpaid') }}</span>
-                                    <button class="details-btn" onclick="openDetailsModal('{{ log.id }}')">{{ t('btn_details') }}</button>
                                 {% elif log.payout_status == 'paid' %}
                                     <span class="payout-badge payout-paid">{{ t('payout_paid') }}</span>
-                                    <button class="details-btn" onclick="openDetailsModal('{{ log.id }}')">{{ t('btn_details') }}</button>
-                                {% else %}
-                                    <span class="text-muted">—</span>
                                 {% endif %}
                             </td>
 
@@ -124,4 +132,26 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleExtraItems(event, element) {
+    event.stopPropagation();
+    const wrapper = element.closest('.items-badge-wrapper');
+    const dropdown = wrapper.querySelector('.extra-items-dropdown');
+    
+    document.querySelectorAll('.extra-items-dropdown.is-open').forEach(d => {
+        if (d !== dropdown) d.classList.remove('is-open');
+    });
+
+    dropdown.classList.toggle('is-open');
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.extra-items-dropdown')) {
+        document.querySelectorAll('.extra-items-dropdown.is-open').forEach(d => {
+            d.classList.remove('is-open');
+        });
+    }
+});
+</script>
 {% endblock %}
