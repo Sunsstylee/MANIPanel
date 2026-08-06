@@ -39,6 +39,12 @@
         "recent_actions": [
             {
                 "action": "action_login",
+                "date": "07.08.2026 02:24",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
                 "date": "07.08.2026 02:17",
                 "status": "status_success",
                 "details": "details_login_success"
@@ -90,12 +96,6 @@
                 "date": "06.08.2026 20:01",
                 "status": "status_success",
                 "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 19:58",
-                "status": "status_success",
-                "details": "details_login_success"
             }
         ]
     },
@@ -137,6 +137,12 @@
             }
         ],
         "recent_actions": [
+            {
+                "action": "action_login",
+                "date": "07.08.2026 02:24",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
             {
                 "action": "action_login",
                 "date": "07.08.2026 02:16",
@@ -190,12 +196,6 @@
                 "date": "06.08.2026 19:43",
                 "status": "status_success",
                 "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 19:40",
-                "status": "status_success",
-                "details": "details_login_success"
             }
         ]
     },
@@ -208,10 +208,6 @@
         "status": "Worker",
         "balance": "$14682.37",
         "finance_history": [
-            {
-                "date": "31.07",
-                "amount": 0.0
-            },
             {
                 "date": "01.08",
                 "amount": 0.0
@@ -235,9 +231,19 @@
             {
                 "date": "06.08",
                 "amount": 14682.37
+            },
+            {
+                "date": "07.08",
+                "amount": 14682.37
             }
         ],
         "recent_actions": [
+            {
+                "action": "action_login",
+                "date": "07.08.2026 02:24",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
             {
                 "action": "action_settings_update",
                 "date": "06.08.2026 21:03",
@@ -291,12 +297,6 @@
                 "date": "05.08.2026 22:20",
                 "status": "status_success",
                 "details": "details_login_success"
-            },
-            {
-                "action": "action_settings_update",
-                "date": "05.08.2026 02:42",
-                "status": "status_success",
-                "details": "details_balance: $14682.37"
             }
         ]
     }

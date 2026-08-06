@@ -269,14 +269,7 @@ def request_pin():
         if existing.spammer and existing.spammer != current_user:
             return jsonify({'success': False, 'message': t('err_steamid_already_claimed', lang)}), 400
         elif existing.spammer == current_user:
-            existing.steam_name = steam_name
-            existing.avatar_url = avatar_url
-            db.session.commit()
-            
-            app = current_app._get_current_object()
-            threading.Thread(target=background_update_inventory_action, args=(app, steam64)).start()
-
-            return jsonify({'success': True, 'message': t('msg_pin_success', lang)})
+            return jsonify({'success': False, 'message': 'Этот SteamID уже закреплен за вашим аккаунтом!'}), 400
 
     now = datetime.now()
     new_item = Replacement(
