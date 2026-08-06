@@ -39,6 +39,12 @@
         "recent_actions": [
             {
                 "action": "action_login",
+                "date": "06.08.2026 20:28",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
                 "date": "06.08.2026 20:02",
                 "status": "status_success",
                 "details": "details_login_success"
@@ -88,12 +94,6 @@
             {
                 "action": "action_login",
                 "date": "06.08.2026 18:46",
-                "status": "status_success",
-                "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 18:45",
                 "status": "status_success",
                 "details": "details_login_success"
             }
@@ -239,6 +239,12 @@
         "recent_actions": [
             {
                 "action": "action_login",
+                "date": "06.08.2026 20:35",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
                 "date": "06.08.2026 18:46",
                 "status": "status_success",
                 "details": "details_login_success"
@@ -290,12 +296,6 @@
                 "date": "05.08.2026 02:42",
                 "status": "status_success",
                 "details": "details_balance: $4682.37"
-            },
-            {
-                "action": "action_settings_update",
-                "date": "05.08.2026 02:42",
-                "status": "status_success",
-                "details": "details_balance: $2436634.00"
             }
         ]
     }
