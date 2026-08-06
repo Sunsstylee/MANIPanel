@@ -15,7 +15,7 @@
             <div class="search-box">
                 <span class="steam-count">
                     {{ t('replacements_steam_id_count') }} ({{ items|length }}) 
-                    <button class="btn-getall" type="button">{{ t('btn_get_all') }}</button>
+                    <button class="btn-getall" id="btnGetAll" type="button">{{ t('btn_get_all') }}</button>
                 </span>
                 <input type="text" id="searchInput" class="table-search-input" placeholder="{{ t('replacements_search_placeholder') }}" autocomplete="off">
             </div>
@@ -41,19 +41,19 @@
                 <tbody>
                     {% if items %}
                         {% for item in items %}
-                        <tr>
-                            <!-- SteamID / Ник с аватаркой и ссылкой -->
+                        <tr id="row-{{ item.id }}" data-id="{{ item.id }}">
+                            <!-- Ник с аватаркой и ссылкой -->
                             <td class="col-user">
                                 <a href="{{ item.steam_url }}" target="_blank" rel="noopener noreferrer" class="user-cell-link" title="Steam Profile">
-                                    <img src="{{ item.avatar_url }}" alt="Avatar" class="user-avatar" onerror="this.src='https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'">
-                                    <span class="username">{{ item.steam_id }}</span>
+                                    <img src="{{ item.avatar_url }}" alt="Avatar" class="user-avatar" id="avatar-{{ item.id }}" onerror="this.src='https://avatars.steamstatic.com/c578f307300c3a8122d20d7f25d3010b965f7c3c_full.jpg'">
+                                    <span class="username" id="name-{{ item.id }}">{{ item.steam_name }}</span>
                                 </a>
                             </td>
 
                             <!-- Инвентарь -->
                             <td class="col-inv">
-                                <div class="inv-val-main">${{ item.inv_tradable }}</div>
-                                <div class="inv-val-sub">${{ item.inv_sub }}</div>
+                                <div class="inv-val-main" id="inv-tr-{{ item.id }}">${{ item.inv_tradable }}</div>
+                                <div class="inv-val-sub" id="inv-sb-{{ item.id }}">${{ item.inv_sub }}</div>
                             </td>
 
                             <!-- Игры -->
@@ -123,4 +123,42 @@
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    async function refreshRow(itemId) {
+        const trValNode = document.getElementById(`inv-tr-${itemId}`);
+        if (trValNode) trValNode.style.opacity = '0.5';
+
+        try {
+            const res = await fetch(`/api/replacements/refresh/${itemId}`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success && data.item) {
+                const item = data.item;
+                document.getElementById(`name-${itemId}`).textContent = item.steam_name;
+                document.getElementById(`avatar-${itemId}`).src = item.avatar_url;
+                document.getElementById(`inv-tr-${itemId}`).textContent = `$${item.inv_tradable}`;
+                document.getElementById(`inv-sb-${itemId}`).textContent = `$${item.inv_sub}`;
+            }
+        } catch (e) {
+            console.error(`Ошибка обновления аккаунта ID ${itemId}:`, e);
+        } finally {
+            if (trValNode) trValNode.style.opacity = '1';
+        }
+    }
+
+    async function refreshAll() {
+        const rows = document.querySelectorAll('tr[data-id]');
+        for (const row of rows) {
+            const id = row.getAttribute('data-id');
+            await refreshRow(id);
+        }
+    }
+
+    const getAllBtn = document.getElementById('btnGetAll');
+    if (getAllBtn) {
+        getAllBtn.addEventListener('click', refreshAll);
+    }
+});
+</script>
 {% endblock %}

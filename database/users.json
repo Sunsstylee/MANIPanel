@@ -8,10 +8,6 @@
         "balance": "$12814.84",
         "finance_history": [
             {
-                "date": "31.07",
-                "amount": 250.5
-            },
-            {
                 "date": "01.08",
                 "amount": 310.0
             },
@@ -34,9 +30,31 @@
             {
                 "date": "06.08",
                 "amount": 12814.84
+            },
+            {
+                "date": "07.08",
+                "amount": 12814.84
             }
         ],
         "recent_actions": [
+            {
+                "action": "action_login",
+                "date": "07.08.2026 01:23",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "07.08.2026 01:19",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
+            {
+                "action": "action_login",
+                "date": "06.08.2026 20:43",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
             {
                 "action": "action_login",
                 "date": "06.08.2026 20:28",
@@ -78,24 +96,6 @@
                 "date": "06.08.2026 19:33",
                 "status": "status_success",
                 "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 19:32",
-                "status": "status_success",
-                "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 18:48",
-                "status": "status_success",
-                "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 18:46",
-                "status": "status_success",
-                "details": "details_login_success"
             }
         ]
     },
@@ -107,10 +107,6 @@
         "status": "Pro",
         "balance": "$16941.35",
         "finance_history": [
-            {
-                "date": "31.07",
-                "amount": 0.0
-            },
             {
                 "date": "01.08",
                 "amount": 0.0
@@ -134,9 +130,19 @@
             {
                 "date": "06.08",
                 "amount": 16941.35
+            },
+            {
+                "date": "07.08",
+                "amount": 16941.35
             }
         ],
         "recent_actions": [
+            {
+                "action": "action_login",
+                "date": "07.08.2026 01:19",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
             {
                 "action": "action_login",
                 "date": "06.08.2026 20:03",
@@ -190,18 +196,13 @@
                 "date": "06.08.2026 00:29",
                 "status": "status_success",
                 "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 00:22",
-                "status": "status_success",
-                "details": "details_login_success"
             }
         ]
     },
     "dk3": {
         "password": "12345",
         "roles": [
+            "Co-Owner",
             "Speaker"
         ],
         "status": "Worker",
@@ -237,6 +238,12 @@
             }
         ],
         "recent_actions": [
+            {
+                "action": "action_settings_update",
+                "date": "06.08.2026 21:03",
+                "status": "status_success",
+                "details": "details_role_changed"
+            },
             {
                 "action": "action_login",
                 "date": "06.08.2026 20:35",
@@ -290,12 +297,6 @@
                 "date": "05.08.2026 02:42",
                 "status": "status_success",
                 "details": "details_balance: $14682.37"
-            },
-            {
-                "action": "action_settings_update",
-                "date": "05.08.2026 02:42",
-                "status": "status_success",
-                "details": "details_balance: $4682.37"
             }
         ]
     }

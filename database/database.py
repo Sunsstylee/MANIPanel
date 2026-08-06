@@ -28,11 +28,12 @@ class Replacement(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     steam_id = db.Column(db.String(100), unique=True, nullable=False)
+    steam_name = db.Column(db.String(100), nullable=True)
     steam_url = db.Column(db.String(255), nullable=True)
     avatar_url = db.Column(db.String(255), nullable=True)
     inv_tradable = db.Column(db.String(50), default='0.00')
     inv_sub = db.Column(db.String(50), default='0.00')
-    games = db.Column(db.String(100), default='csgo')  # храним игры через запятую: dota2,csgo,rust
+    games = db.Column(db.String(100), default='csgo')
     swapped_offers = db.Column(db.Integer, default=0)
     algorithm = db.Column(db.Integer, default=4)
     min_dep = db.Column(db.Integer, default=50)
@@ -45,6 +46,7 @@ class Replacement(db.Model):
         return {
             'id': self.id,
             'steam_id': self.steam_id,
+            'steam_name': self.steam_name or self.steam_id,
             'steam_url': self.steam_url,
             'avatar_url': self.avatar_url,
             'inv_tradable': self.inv_tradable,
@@ -63,11 +65,11 @@ def init_db(app):
     db.init_app(app)
     with app.app_context():
         db.create_all()
-        # Добавим стартовые данные, если таблица пустая (чтобы при первом запуске не было пусто)
         if Replacement.query.count() == 0:
             initial_data = [
                 Replacement(
-                    steam_id='SBY139',
+                    steam_id='76561198000000001',
+                    steam_name='SBY139',
                     steam_url='https://steamcommunity.com/profiles/76561198000000001',
                     avatar_url='https://avatars.steamstatic.com/c578f307300c3a8122d20d7f25d3010b965f7c3c_full.jpg',
                     inv_tradable='23.51',
@@ -82,7 +84,8 @@ def init_db(app):
                     note=''
                 ),
                 Replacement(
-                    steam_id='cRaZyBaNaNツ',
+                    steam_id='76561198000000002',
+                    steam_name='cRaZyBaNaNツ',
                     steam_url='https://steamcommunity.com/profiles/76561198000000002',
                     avatar_url='https://avatars.steamstatic.com/b5bd569220fa447289659b967d26425032a4e9ef_full.jpg',
                     inv_tradable='236.91',
