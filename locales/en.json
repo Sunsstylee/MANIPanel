@@ -132,5 +132,12 @@
     "payout_paid": "paid",
     "btn_details": "Details",
     "no_logs_found": "No logs found",
-    "extra_items_title": "Additional Items"
+    "extra_items_title": "Additional Items",
+    "label_steam_id": "SteamID:",
+    "placeholder_steam_id": "Enter SteamID",
+    "btn_request_pin": "Request Pin",
+    "btn_check_offer_swap": "Check offer swap session activity",
+    "btn_check_mafile_autologin": "Check autologin mafile session activity",
+    "btn_check_mafile_logs": "Check if mafile was generated in auth logs",
+    "btn_check_authorizations": "Check in authorizations"
 }

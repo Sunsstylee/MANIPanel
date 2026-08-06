@@ -132,5 +132,12 @@
     "payout_paid": "выплачено",
     "btn_details": "Детали",
     "no_logs_found": "Логи не найдены",
-    "extra_items_title": "Дополнительные предметы"
+    "extra_items_title": "Дополнительные предметы",
+    "label_steam_id": "SteamID:",
+    "placeholder_steam_id": "Введите SteamID",
+    "btn_request_pin": "Запросить закрепление",
+    "btn_check_offer_swap": "Проверить активность сессии в подмене офферов",
+    "btn_check_mafile_autologin": "Проверить активность сессии в мафайлах автологин",
+    "btn_check_mafile_logs": "Проверить был ли сгенерирован мафайл в логах авторизации",
+    "btn_check_authorizations": "Проверить в авторизациях"
 }

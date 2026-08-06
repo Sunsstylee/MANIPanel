@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('nav_title_actions') }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/actions.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="actions-wrapper">
+    <div class="actions-card glass-panel">
+        
+        <!-- Поле ввода SteamID -->
+        <div class="input-group-row">
+            <label for="steamIdInput" class="steam-label">{{ t('label_steam_id') }}</label>
+            <input 
+                type="text" 
+                id="steamIdInput" 
+                class="steam-input" 
+                placeholder="{{ t('placeholder_steam_id') }}" 
+                autocomplete="off"
+            >
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="actions-buttons-stack">
+            <button class="action-btn btn-green" type="button">
+                {{ t('btn_request_pin') }}
+            </button>
+            
+            <button class="action-btn btn-cyan" type="button">
+                {{ t('btn_check_offer_swap') }}
+            </button>
+            
+            <button class="action-btn btn-cyan" type="button">
+                {{ t('btn_check_mafile_autologin') }}
+            </button>
+            
+            <button class="action-btn btn-dark" type="button">
+                {{ t('btn_check_mafile_logs') }}
+            </button>
+            
+            <button class="action-btn btn-dark" type="button">
+                {{ t('btn_check_authorizations') }}
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const steamInput = document.getElementById('steamIdInput');
+    
+    // Восстанавливаем сохраненный SteamID конкретного пользователя из локального хранилища
+    const savedSteamId = localStorage.getItem('user_last_steam_id');
+    if (savedSteamId) {
+        steamInput.value = savedSteamId;
+    }
+
+    // Сохраняем в localStorage при вводе
+    steamInput.addEventListener('input', (e) => {
+        localStorage.setItem('user_last_steam_id', e.target.value.trim());
+    });
+});
+</script>
+{% endblock %}

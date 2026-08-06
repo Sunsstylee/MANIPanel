@@ -1,0 +1,225 @@
+.replacements-container {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.replacements-card {
+    width: 100%;
+    background: rgba(11, 16, 32, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 20px rgba(0, 194, 255, 0.05);
+}
+
+/* Шапка над таблицей */
+.table-top-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.steam-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-getall {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    font-size: 11px;
+    border-radius: 4px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.btn-getall:hover {
+    color: #fff;
+    border-color: var(--neon-color);
+}
+
+.table-search-input {
+    background: rgba(7, 9, 19, 0.85);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    padding: 7px 12px;
+    color: var(--text-main);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    width: 220px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.table-search-input:focus {
+    border-color: var(--neon-color);
+    box-shadow: 0 0 10px var(--neon-glow);
+}
+
+/* Контейнер таблицы */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.replacements-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-align: center;
+}
+
+.replacements-table th {
+    background: rgba(7, 9, 19, 0.6);
+    color: #8b9bb4;
+    padding: 12px 8px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--glass-border);
+    white-space: nowrap;
+}
+
+.replacements-table th .sub-th {
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.replacements-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.replacements-table tbody tr:hover {
+    background: rgba(0, 194, 255, 0.02);
+}
+
+/* Элементы внутри ячеек */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.leaf-icon {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.username {
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.inv-val-main {
+    color: #4ade80;
+    font-weight: 700;
+}
+
+.inv-val-sub {
+    color: #f97316;
+    font-size: 11px;
+}
+
+.game-badges {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.game-badge {
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.game-badge.dota { background: #7f1d1d; color: #fca5a5; }
+.game-badge.csgo { background: #78350f; color: #fde047; }
+.game-badge.rust { background: #451a03; color: #fdba74; }
+
+.dep-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.btn-icon-edit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.btn-icon-edit:hover { opacity: 1; }
+
+.time-main { color: #e2e8f0; }
+.date-sub { font-size: 11px; color: var(--text-muted); }
+
+.note-input {
+    background: rgba(7, 9, 19, 0.7);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: #fff;
+    width: 80px;
+    font-family: inherit;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* Палитра кнопок действий */
+.action-buttons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: flex-start;
+    max-width: 480px;
+}
+
+.btn-act {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.btn-act:hover {
+    filter: brightness(1.2);
+    transform: translateY(-1px);
+}
+
+.act-mbrowser { background: #2563eb; color: #fff; }
+.act-browser { background: #06b6d4; color: #fff; }
+.act-login { background: #a3e635; color: #000; }
+.act-spam { background: #4b5563; color: #fff; }
+.act-cookie { background: #6b7280; color: #fff; }
+.act-limit { background: #991b1b; color: #fca5a5; }
+.act-tickets { background: #7f1d1d; color: #fca5a5; }
+.act-pause { background: #f97316; color: #fff; }
+.act-remove { background: #ef4444; color: #fff; }

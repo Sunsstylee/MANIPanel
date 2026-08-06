@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('nav_title_replacements') if t else 'Подмены' }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/replacements.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="replacements-container">
+    <div class="replacements-card glass-panel">
+        
+        <!-- Шапка таблицы с поиском -->
+        <div class="table-top-bar">
+            <div class="search-box">
+                <span class="steam-count">SteamID ({{ items|length }}) <button class="btn-getall">GetAll</button></span>
+                <input type="text" id="searchInput" class="table-search-input" placeholder="Поиск по steamid или нику" autocomplete="off">
+            </div>
+        </div>
+
+        <!-- Таблица подмен -->
+        <div class="table-responsive">
+            <table class="replacements-table">
+                <thead>
+                    <tr>
+                        <th class="col-user">SteamID</th>
+                        <th class="col-inv">Инвентарь ($):<br><span class="sub-th">tradable, not, all</span></th>
+                        <th class="col-games">Full инвентарь</th>
+                        <th class="col-offers">Подменено офферов</th>
+                        <th class="col-algo">Алгоритм работы</th>
+                        <th class="col-dep">Мин деп</th>
+                        <th class="col-time">Время начала сессии подмены ↑</th>
+                        <th class="col-spammer">Спамер</th>
+                        <th class="col-note">Заметка</th>
+                        <th class="col-actions">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <!-- SteamID / Ник -->
+                        <td class="col-user">
+                            <div class="user-cell">
+                                <span class="leaf-icon">🍃</span>
+                                <span class="username">{{ item.steam_id }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Инвентарь -->
+                        <td class="col-inv">
+                            <div class="inv-val-main">${{ item.inv_tradable }}</div>
+                            <div class="inv-val-sub">${{ item.inv_sub }}</div>
+                        </td>
+
+                        <!-- Игры -->
+                        <td class="col-games">
+                            <div class="game-badges">
+                                {% if 'dota2' in item.games %}<span class="game-badge dota">D2</span>{% endif %}
+                                {% if 'csgo' in item.games %}<span class="game-badge csgo">CS</span>{% endif %}
+                                {% if 'rust' in item.games %}<span class="game-badge rust">RUST</span>{% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Офферы -->
+                        <td class="col-offers">{{ item.swapped_offers }}</td>
+
+                        <!-- Алгоритм -->
+                        <td class="col-algo">{{ item.algorithm }}</td>
+
+                        <!-- Мин деп -->
+                        <td class="col-dep">
+                            <div class="dep-cell">
+                                <span>{{ item.min_dep }}</span>
+                                <button class="btn-icon-edit" title="Редактировать">✏️</button>
+                            </div>
+                        </td>
+
+                        <!-- Время -->
+                        <td class="col-time">
+                            <div class="time-main">{{ item.time }}</div>
+                            <div class="date-sub">{{ item.date }}</div>
+                        </td>
+
+                        <!-- Спамер -->
+                        <td class="col-spammer">{{ item.spammer }}</td>
+
+                        <!-- Заметка -->
+                        <td class="col-note">
+                            <input type="text" class="note-input" value="{{ item.note }}" placeholder="">
+                        </td>
+
+                        <!-- Кнопки действий -->
+                        <td class="col-actions">
+                            <div class="action-buttons-row">
+                                <button class="btn-act act-mbrowser">mBrowser</button>
+                                <button class="btn-act act-browser">Browser</button>
+                                <button class="btn-act act-login">Login</button>
+                                <button class="btn-act act-spam">Spam</button>
+                                <button class="btn-act act-cookie">Cookie</button>
+                                <button class="btn-act act-limit">Limit TradeOffers</button>
+                                <button class="btn-act act-tickets">OFF Tickets Decliner</button>
+                                <button class="btn-act act-pause">Pause</button>
+                                <button class="btn-act act-remove">Remove</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -8,6 +8,8 @@ from werkzeug.exceptions import HTTPException
 from routes.auth import auth_bp
 from routes.techpanel import techpanel_bp, VALID_ROLES
 from routes.logs import logs_bp
+from routes.actions import actions_bp
+from routes.replacements import replacements_bp
 from locales.i18n import t
 from database.database import load_settings, is_top_admin, get_user_roles, get_sidebar_stats
 
@@ -19,8 +21,8 @@ ROUTE_PAGE_MAP = {
     'auth.dashboard': 'dashboard',
     'techpanel.techpanel': 'techpanel',
     'logs.logs': 'logs',
-    'auth.actions': 'actions',
-    'auth.replacements': 'replacements',
+    'actions.actions': 'actions',
+    'replacements.replacements': 'replacements',
     'auth.clients': 'clients'
 }
 
@@ -35,7 +37,6 @@ def inject_globals():
     
     access_denied = False
     
-    # Если юзер авторизован и НЕ является верхушкой (Owner / Co-Owner / Developer)
     if username and not top_admin:
         page_key = ROUTE_PAGE_MAP.get(request.endpoint)
         
@@ -48,11 +49,9 @@ def inject_globals():
             if isinstance(allowed_roles, str):
                 allowed_roles = [allowed_roles]
 
-            # Сравнение множеств без учета регистра
             user_roles_set = {str(r).strip().lower() for r in user_roles}
             allowed_roles_set = {str(r).strip().lower() for r in allowed_roles}
             
-            # Запрещаем доступ ТОЛЬКО если нет ни одной общей роли
             if not (user_roles_set & allowed_roles_set):
                 access_denied = True
 
@@ -92,7 +91,6 @@ def set_language(lang):
         session['lang'] = lang
     return redirect(request.referrer or url_for('index'))
 
-# Заглушка для иконки сайта, чтобы браузер не выбивал 404
 @app.route('/favicon.ico')
 def favicon():
     return '', 204
@@ -100,6 +98,8 @@ def favicon():
 app.register_blueprint(auth_bp)
 app.register_blueprint(techpanel_bp)
 app.register_blueprint(logs_bp)
+app.register_blueprint(actions_bp)
+app.register_blueprint(replacements_bp)
 
 @app.route('/')
 def index():
@@ -107,13 +107,8 @@ def index():
         return redirect(url_for('auth.dashboard'))
     return redirect(url_for('auth.login'))
 
-# ==========================================
-#  ЛОГИРОВАНИЕ ПЕРЕХОДОВ И ПОДРОБНЫХ ОШИБОК
-# ==========================================
-
 @app.after_request
 def log_request(response):
-    # Игнорируем логирование статики и иконки
     if not request.path.startswith('/static') and request.path != '/favicon.ico':
         now = datetime.now().strftime("%H:%M:%S")
         ip = request.remote_addr
@@ -142,8 +137,6 @@ def handle_exception(e):
         raise e
     
     return f"<h1>500 — Внутренняя ошибка сервера</h1><p>{e}</p>", 500
-
-# ==========================================
 
 def show_server_info(host='0.0.0.0', port=5000, debug=True):
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
