@@ -162,5 +162,8 @@
     "act_off_tickets": "OFF Tickets Decliner",
     "act_pause": "Pause",
     "act_remove": "Remove",
-    "replacements_empty": "Подмены не найдены"
+    "replacements_empty": "Подмены не найдены",
+    "err_enter_steamid": "Введите SteamID!",
+    "err_steamid_already_claimed": "Этот SteamID уже закрепил другой пользователь!",
+    "msg_pin_success": "Подмена успешно закреплена за вашим аккаунтом!"
 }

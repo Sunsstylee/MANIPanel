@@ -11,10 +11,17 @@ from routes.logs import logs_bp
 from routes.actions import actions_bp
 from routes.replacements import replacements_bp
 from locales.i18n import t
-from database.database import load_settings, is_top_admin, get_user_roles, get_sidebar_stats
+from database.database import load_settings, is_top_admin, get_user_roles, get_sidebar_stats, db, init_db
 
 app = Flask(__name__)
 app.secret_key = "mani_super_secret_key"
+
+# Настройка SQLite базы данных
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///manipanel.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Инициализируем БД
+init_db(app)
 
 # Карта соответствия Flask-эндпоинтов и разделов в settings.json
 ROUTE_PAGE_MAP = {

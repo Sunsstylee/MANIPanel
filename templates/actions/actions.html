@@ -18,13 +18,14 @@
                 id="steamIdInput" 
                 class="steam-input" 
                 placeholder="{{ t('placeholder_steam_id') }}" 
+                value="{{ last_steam_id }}"
                 autocomplete="off"
             >
         </div>
 
         <!-- Кнопки действий -->
         <div class="actions-buttons-stack">
-            <button class="action-btn btn-green" type="button">
+            <button id="btnRequestPin" class="action-btn btn-green" type="button">
                 {{ t('btn_request_pin') }}
             </button>
             
@@ -51,16 +52,36 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const steamInput = document.getElementById('steamIdInput');
-    
-    // Восстанавливаем сохраненный SteamID конкретного пользователя из локального хранилища
-    const savedSteamId = localStorage.getItem('user_last_steam_id');
-    if (savedSteamId) {
-        steamInput.value = savedSteamId;
-    }
+    const btnRequestPin = document.getElementById('btnRequestPin');
 
-    // Сохраняем в localStorage при вводе
-    steamInput.addEventListener('input', (e) => {
-        localStorage.setItem('user_last_steam_id', e.target.value.trim());
+    // Запросить закрепление
+    btnRequestPin.addEventListener('click', async () => {
+        const steamId = steamInput.value.trim();
+        if (!steamId) {
+            alert('{{ t("err_enter_steamid") }}');
+            return;
+        }
+
+        btnRequestPin.disabled = true;
+
+        try {
+            const res = await fetch('/api/request_pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ steam_id: steamId })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        } catch (err) {
+            alert('{{ t("err_server_conn") }}');
+        } finally {
+            btnRequestPin.disabled = false;
+        }
     });
 });
 </script>

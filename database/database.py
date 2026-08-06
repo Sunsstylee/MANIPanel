@@ -1,6 +1,9 @@
 import json
 import os
 from datetime import datetime, timedelta
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_FILE = os.path.join(BASE_DIR, "users.json")
@@ -19,6 +22,83 @@ DEFAULT_SETTINGS = {
         "clients": ["Owner", "Co-Owner", "Developer"]
     }
 }
+
+class Replacement(db.Model):
+    __tablename__ = 'replacements'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    steam_id = db.Column(db.String(100), unique=True, nullable=False)
+    steam_url = db.Column(db.String(255), nullable=True)
+    avatar_url = db.Column(db.String(255), nullable=True)
+    inv_tradable = db.Column(db.String(50), default='0.00')
+    inv_sub = db.Column(db.String(50), default='0.00')
+    games = db.Column(db.String(100), default='csgo')  # храним игры через запятую: dota2,csgo,rust
+    swapped_offers = db.Column(db.Integer, default=0)
+    algorithm = db.Column(db.Integer, default=4)
+    min_dep = db.Column(db.Integer, default=50)
+    time = db.Column(db.String(50), nullable=True)
+    date = db.Column(db.String(50), nullable=True)
+    spammer = db.Column(db.String(100), nullable=True)
+    note = db.Column(db.String(255), default='')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'steam_id': self.steam_id,
+            'steam_url': self.steam_url,
+            'avatar_url': self.avatar_url,
+            'inv_tradable': self.inv_tradable,
+            'inv_sub': self.inv_sub,
+            'games': self.games.split(',') if self.games else [],
+            'swapped_offers': self.swapped_offers,
+            'algorithm': self.algorithm,
+            'min_dep': self.min_dep,
+            'time': self.time,
+            'date': self.date,
+            'spammer': self.spammer,
+            'note': self.note
+        }
+
+def init_db(app):
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+        # Добавим стартовые данные, если таблица пустая (чтобы при первом запуске не было пусто)
+        if Replacement.query.count() == 0:
+            initial_data = [
+                Replacement(
+                    steam_id='SBY139',
+                    steam_url='https://steamcommunity.com/profiles/76561198000000001',
+                    avatar_url='https://avatars.steamstatic.com/c578f307300c3a8122d20d7f25d3010b965f7c3c_full.jpg',
+                    inv_tradable='23.51',
+                    inv_sub='8.52',
+                    games='dota2,csgo,rust',
+                    swapped_offers=0,
+                    algorithm=4,
+                    min_dep=50,
+                    time='12:41:30',
+                    date='6.8.2026',
+                    spammer='Sunsstylee',
+                    note=''
+                ),
+                Replacement(
+                    steam_id='cRaZyBaNaNツ',
+                    steam_url='https://steamcommunity.com/profiles/76561198000000002',
+                    avatar_url='https://avatars.steamstatic.com/b5bd569220fa447289659b967d26425032a4e9ef_full.jpg',
+                    inv_tradable='236.91',
+                    inv_sub='0.85',
+                    games='dota2,csgo',
+                    swapped_offers=0,
+                    algorithm=4,
+                    min_dep=50,
+                    time='0:9:44',
+                    date='3.8.2026',
+                    spammer='Sunsstylee',
+                    note=''
+                )
+            ]
+            db.session.bulk_save_objects(initial_data)
+            db.session.commit()
 
 def format_balance(val):
     if val is None or str(val).strip() == "":
@@ -142,8 +222,6 @@ def record_finance_snapshot(username, amount=None):
     save_users(users)
 
 def normalize_user_data(username, raw_data):
-    today_str = datetime.now().strftime("%d.%m")
-    
     if isinstance(raw_data, str):
         return {
             "password": raw_data,

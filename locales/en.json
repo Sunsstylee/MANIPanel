@@ -162,5 +162,8 @@
     "act_off_tickets": "OFF Tickets Decliner",
     "act_pause": "Pause",
     "act_remove": "Remove",
-    "replacements_empty": "No replacements found"
+    "replacements_empty": "No replacements found",
+    "err_enter_steamid": "Please enter SteamID!",
+    "err_steamid_already_claimed": "This SteamID is already pinned to another user!",
+    "msg_pin_success": "Replacement successfully pinned to your account!"
 }
