@@ -1,10 +1,11 @@
-from flask import Blueprint, render_template, session, jsonify, request
+from flask import Blueprint, render_template, session, jsonify, request, current_app
 import urllib.request
 import urllib.parse
-import xml.etree.ElementTree as ET
 import json
 import time
 import re
+import threading
+import cloudscraper
 from datetime import datetime
 from locales.i18n import t
 from routes.auth import login_required
@@ -17,7 +18,7 @@ LAST_CACHE_UPDATE = 0
 CACHE_TTL = 3600
 
 INVENTORY_MEMORY_CACHE = {}
-INVENTORY_COOLDOWN = 300  # 5 минут кэша в памяти для защиты от 429
+INVENTORY_COOLDOWN = 300
 
 def load_global_price_cache():
     global GLOBAL_PRICE_CACHE, LAST_CACHE_UPDATE
@@ -25,30 +26,55 @@ def load_global_price_cache():
     if now - LAST_CACHE_UPDATE < CACHE_TTL and GLOBAL_PRICE_CACHE:
         return GLOBAL_PRICE_CACHE
 
-    url = "https://market.csgo.com/api/v2/prices/USD.json"
+    cache = {}
+    
+    url_tradeit = "https://tradeit.gg/api/v2/inventory/data"
     try:
-        req = urllib.request.Request(url, headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'Accept': 'application/json'
-        })
-        with urllib.request.urlopen(req, timeout=10) as response:
-            data = json.loads(response.read().decode('utf-8'))
-            if data.get('success') and 'items' in data:
-                cache = {}
-                for item in data['items']:
-                    name = item.get('market_hash_name')
-                    price_str = item.get('price')
-                    if name and price_str:
-                        try:
-                            cache[name] = float(price_str)
-                        except ValueError:
-                            pass
-                
-                GLOBAL_PRICE_CACHE = cache
-                LAST_CACHE_UPDATE = now
-                print(f"[PRICE CACHE] База цен успешно обновлена ({len(cache)} предметов)")
+        scraper = cloudscraper.create_scraper()
+        response = scraper.get(url_tradeit, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            items_list = data if isinstance(data, list) else data.get('items', [])
+            for item in items_list:
+                name = item.get('name') or item.get('market_hash_name')
+                price_str = item.get('price') or item.get('buffPrice') or item.get('value')
+                if name and price_str is not None:
+                    try:
+                        cache[name] = float(price_str)
+                    except ValueError:
+                        pass
+            if cache:
+                print(f"[PRICE CACHE] Цены с Tradeit успешно загружены ({len(cache)} предметов)")
+        else:
+            print(f"[PRICE CACHE WARNING] Tradeit вернул статус {response.status_code}, переключение на резерв...")
     except Exception as e:
-        print(f"[PRICE CACHE ERROR] Ошибка загрузки базы цен (Market API): {e}")
+        print(f"[PRICE CACHE WARNING] Tradeit API недоступен ({e}), переключение на резервный источник...")
+
+    if not cache:
+        url_market = "https://market.csgo.com/api/v2/prices/USD.json"
+        try:
+            req = urllib.request.Request(url_market, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Accept': 'application/json'
+            })
+            with urllib.request.urlopen(req, timeout=10) as response:
+                data = json.loads(response.read().decode('utf-8'))
+                if data.get('success') and 'items' in data:
+                    for item in data['items']:
+                        name = item.get('market_hash_name')
+                        price_str = item.get('price')
+                        if name and price_str:
+                            try:
+                                cache[name] = float(price_str)
+                            except ValueError:
+                                pass
+                    print(f"[PRICE CACHE] База цен успешно загружена из резерва ({len(cache)} предметов)")
+        except Exception as e2:
+            print(f"[PRICE CACHE ERROR] Ошибка резервного источника цен: {e2}")
+
+    if cache:
+        GLOBAL_PRICE_CACHE = cache
+        LAST_CACHE_UPDATE = now
         
     return GLOBAL_PRICE_CACHE
 
@@ -62,59 +88,52 @@ def resolve_steam_profile(raw_steam_id):
         clean_id = clean_id.split('steamcommunity.com/id/')[1].strip('/').split('/')[0]
 
     steam64 = clean_id
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'}
-
-    if not (clean_id.isdigit() and len(clean_id) == 17):
-        encoded_id = urllib.parse.quote(clean_id)
-        # 1. Попытка через XML
-        try:
-            url = f"https://steamcommunity.com/id/{encoded_id}/?xml=1"
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=5) as resp:
-                root = ET.fromstring(resp.read())
-                sid64_node = root.find('steamID64')
-                if sid64_node is not None and sid64_node.text:
-                    steam64 = sid64_node.text.strip()
-        except Exception:
-            pass
-
-        # 2. Резервная попытка через HTML профиля
-        if not (steam64.isdigit() and len(steam64) == 17):
-            try:
-                url = f"https://steamcommunity.com/id/{encoded_id}/"
-                req = urllib.request.Request(url, headers=headers)
-                with urllib.request.urlopen(req, timeout=5) as resp:
-                    html = resp.read().decode('utf-8', errors='ignore')
-                    match = re.search(r'g_steamID\s*=\s*"(\d{17})"', html)
-                    if match:
-                        steam64 = match.group(1)
-            except Exception:
-                pass
-
-    encoded_64 = urllib.parse.quote(steam64)
-    profile_urls = [
-        f"https://steamcommunity.com/profiles/{encoded_64}/?xml=1",
-        f"https://steamcommunity.com/id/{encoded_64}/?xml=1"
-    ]
-    
     steam_name = clean_id
     avatar_url = default_avatar
     
-    for url in profile_urls:
-        try:
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=5) as response:
-                root = ET.fromstring(response.read())
-                name_node = root.find('steamID')
-                avatar_node = root.find('avatarFull')
-                
-                if name_node is not None and name_node.text:
-                    steam_name = name_node.text.strip()
-                if avatar_node is not None and avatar_node.text:
-                    avatar_url = avatar_node.text.strip()
-                break
-        except Exception:
-            continue
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9'
+    }
+
+    if clean_id.isdigit() and len(clean_id) == 17:
+        profile_url = f"https://steamcommunity.com/profiles/{clean_id}/"
+    else:
+        profile_url = f"https://steamcommunity.com/id/{urllib.parse.quote(clean_id)}/"
+
+    try:
+        req = urllib.request.Request(profile_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            html = resp.read().decode('utf-8', errors='ignore')
+            
+            match_id = re.search(r'g_steamID\s*=\s*"(\d{17})"', html)
+            if match_id:
+                steam64 = match_id.group(1)
+            
+            match_name = re.search(r'"personaname"\s*:\s*"([^"]+)"', html)
+            if match_name:
+                raw_name = match_name.group(1)
+                try:
+                    steam_name = json.loads(f'"{raw_name}"')
+                except Exception:
+                    try:
+                        steam_name = raw_name.encode().decode('unicode-escape')
+                    except Exception:
+                        steam_name = raw_name
+            else:
+                match_title = re.search(r'<title>[^<]*[:\s]([^<]+)</title>', html)
+                if match_title:
+                    steam_name = match_title.group(1).strip()
+
+            match_avatar = re.search(r'"avatarfull"\s*:\s*"([^"]+)"', html)
+            if match_avatar:
+                avatar_url = match_avatar.group(1).replace('\\/', '/')
+            else:
+                match_img = re.search(r'<link rel="image_src" href="([^"]+)"', html)
+                if match_img:
+                    avatar_url = match_img.group(1)
+    except Exception as e:
+        print(f"[PROFILE RESOLVE ERROR] Не удалось получить профиль {raw_steam_id}: {e}")
 
     return steam64, steam_name, avatar_url
 
@@ -191,6 +210,20 @@ def fetch_steam_info_and_inventory(steam_id, force=False):
     INVENTORY_MEMORY_CACHE[steam64] = (result, now)
     return result
 
+def background_update_inventory_replacement(app, steam64):
+    with app.app_context():
+        try:
+            _, s_name, a_url, inv_tr, inv_sb = fetch_steam_info_and_inventory(steam64, force=True)
+            item = Replacement.query.filter_by(steam_id=steam64).first()
+            if item:
+                item.steam_name = s_name
+                item.avatar_url = a_url
+                item.inv_tradable = inv_tr
+                item.inv_sub = inv_sb
+                db.session.commit()
+        except Exception as e:
+            print(f"[BACKGROUND ERROR] Не удалось обновить инвентарь для {steam64}: {e}")
+
 @replacements_bp.route('/replacements')
 @login_required
 def replacements():
@@ -217,21 +250,32 @@ def add_replacement():
     if not raw_steam_id:
         return jsonify({'success': False, 'error': 'SteamID is required'}), 400
 
-    steam64, steam_name, avatar_url, inv_tradable, inv_sub = fetch_steam_info_and_inventory(raw_steam_id, force=True)
+    clean_id = str(raw_steam_id).strip()
+    if 'steamcommunity.com/profiles/' in clean_id:
+        clean_id = clean_id.split('steamcommunity.com/profiles/')[1].strip('/').split('/')[0]
+    elif 'steamcommunity.com/id/' in clean_id:
+        clean_id = clean_id.split('steamcommunity.com/id/')[1].strip('/').split('/')[0]
 
-    # Проверка: есть ли уже этот аккаунт в базе у текущего спамера
+    if clean_id.isdigit() and len(clean_id) == 17:
+        any_existing = Replacement.query.filter_by(steam_id=clean_id).first()
+        if any_existing and any_existing.spammer and any_existing.spammer != current_username:
+            return jsonify({'success': False, 'error': 'This SteamID is already claimed by another user'}), 400
+
+    steam64, steam_name, avatar_url = resolve_steam_profile(raw_steam_id)
+
+    if not (steam64.isdigit() and len(steam64) == 17):
+        return jsonify({'success': False, 'error': 'Invalid SteamID'}), 400
+
     existing_item = Replacement.query.filter_by(steam_id=steam64, spammer=current_username).first()
     if existing_item:
         existing_item.steam_name = steam_name
         existing_item.avatar_url = avatar_url
         existing_item.steam_url = f"https://steamcommunity.com/profiles/{steam64}"
-        
-        # Если новый запрос дал 0, а в базе уже были деньги — не перезаписываем нулями
-        if not (inv_tradable == "0.00" and inv_sub == "0.00" and (float(existing_item.inv_tradable) > 0 or float(existing_item.inv_sub) > 0)):
-            existing_item.inv_tradable = inv_tradable
-            existing_item.inv_sub = inv_sub
-
         db.session.commit()
+
+        app = current_app._get_current_object()
+        threading.Thread(target=background_update_inventory_replacement, args=(app, steam64)).start()
+
         return jsonify({'success': True, 'item': existing_item.to_dict()})
 
     new_item = Replacement(
@@ -239,8 +283,8 @@ def add_replacement():
         steam_name=steam_name,
         steam_url=f"https://steamcommunity.com/profiles/{steam64}",
         avatar_url=avatar_url,
-        inv_tradable=inv_tradable,
-        inv_sub=inv_sub,
+        inv_tradable="0.00",
+        inv_sub="0.00",
         games=data.get('games', 'csgo'),
         algorithm=data.get('algorithm', 4),
         min_dep=data.get('min_dep', 50),
@@ -252,6 +296,9 @@ def add_replacement():
 
     db.session.add(new_item)
     db.session.commit()
+
+    app = current_app._get_current_object()
+    threading.Thread(target=background_update_inventory_replacement, args=(app, steam64)).start()
 
     return jsonify({'success': True, 'item': new_item.to_dict()})
 
