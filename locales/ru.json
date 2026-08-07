@@ -165,6 +165,7 @@
     "replacements_empty": "Подмены не найдены",
     "err_enter_steamid": "Введите SteamID!",
     "err_steamid_already_claimed": "Этот SteamID уже закрепил другой пользователь!",
+    "err_steamid_already_claimed_by_you": "Этот SteamID уже закреплен за вашим аккаунтом!",
     "msg_pin_success": "Подмена успешно закреплена за вашим аккаунтом!",
     "search_no_results": "Нет результатов",
     "inv_loading": "Загрузка данных из базы...",

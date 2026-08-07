@@ -8,10 +8,6 @@
         "balance": "$12814.84",
         "finance_history": [
             {
-                "date": "01.08",
-                "amount": 310.0
-            },
-            {
                 "date": "02.08",
                 "amount": 420.15
             },
@@ -34,9 +30,19 @@
             {
                 "date": "07.08",
                 "amount": 12814.84
+            },
+            {
+                "date": "08.08",
+                "amount": 12814.84
             }
         ],
         "recent_actions": [
+            {
+                "action": "action_login",
+                "date": "08.08.2026 00:19",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
             {
                 "action": "action_login",
                 "date": "07.08.2026 02:24",
@@ -90,12 +96,6 @@
                 "date": "06.08.2026 20:02",
                 "status": "status_success",
                 "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 20:01",
-                "status": "status_success",
-                "details": "details_login_success"
             }
         ]
     },
@@ -107,10 +107,6 @@
         "status": "Pro",
         "balance": "$16941.35",
         "finance_history": [
-            {
-                "date": "01.08",
-                "amount": 0.0
-            },
             {
                 "date": "02.08",
                 "amount": 0.0
@@ -134,9 +130,19 @@
             {
                 "date": "07.08",
                 "amount": 16941.35
+            },
+            {
+                "date": "08.08",
+                "amount": 16941.35
             }
         ],
         "recent_actions": [
+            {
+                "action": "action_login",
+                "date": "08.08.2026 00:19",
+                "status": "status_success",
+                "details": "details_login_success"
+            },
             {
                 "action": "action_login",
                 "date": "07.08.2026 02:24",
@@ -188,12 +194,6 @@
             {
                 "action": "action_login",
                 "date": "06.08.2026 19:58",
-                "status": "status_success",
-                "details": "details_login_success"
-            },
-            {
-                "action": "action_login",
-                "date": "06.08.2026 19:43",
                 "status": "status_success",
                 "details": "details_login_success"
             }

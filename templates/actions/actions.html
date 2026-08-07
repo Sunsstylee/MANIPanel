@@ -73,9 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
 
             if (data.success) {
-                alert(data.message);
+                alert('{{ t("msg_pin_success") }}');
             } else {
-                alert(data.message);
+                alert(data.message || '{{ t("err_server_conn") }}');
             }
         } catch (err) {
             alert('{{ t("err_server_conn") }}');

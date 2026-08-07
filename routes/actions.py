@@ -328,7 +328,7 @@ def request_pin():
                 return (
                     jsonify({
                         'success': False,
-                        'message': 'Этот SteamID уже закреплен за вашим аккаунтом!',
+                        'message': t('err_steamid_already_claimed_by_you', lang),
                     }),
                     400,
                 )
@@ -355,7 +355,7 @@ def request_pin():
             return (
                 jsonify({
                     'success': False,
-                    'message': 'Этот SteamID уже закреплен за вашим аккаунтом!',
+                    'message': t('err_steamid_already_claimed_by_you', lang),
                 }),
                 400,
             )
