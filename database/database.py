@@ -33,6 +33,7 @@ class Replacement(db.Model):
     avatar_url = db.Column(db.String(255), nullable=True)
     inv_tradable = db.Column(db.String(50), default='0.00')
     inv_sub = db.Column(db.String(50), default='0.00')
+    breakdown_json = db.Column(db.Text, nullable=True, default='{}')
     games = db.Column(db.String(100), default='csgo')
     swapped_offers = db.Column(db.Integer, default=0)
     algorithm = db.Column(db.Integer, default=4)
@@ -51,6 +52,7 @@ class Replacement(db.Model):
             'avatar_url': self.avatar_url,
             'inv_tradable': self.inv_tradable,
             'inv_sub': self.inv_sub,
+            'breakdown_json': self.breakdown_json,
             'games': self.games.split(',') if self.games else [],
             'swapped_offers': self.swapped_offers,
             'algorithm': self.algorithm,
@@ -74,12 +76,17 @@ def init_db(app):
                     avatar_url='https://avatars.steamstatic.com/c578f307300c3a8122d20d7f25d3010b965f7c3c_full.jpg',
                     inv_tradable='23.51',
                     inv_sub='8.52',
+                    breakdown_json=json.dumps({
+                        'tradable': {'730': 23.51, '570': 0.0, '252490': 0.0},
+                        'non_tradable': {'730': 8.52, '570': 0.0, '252490': 0.0},
+                        'updated_at': '12:41:30 06.08.2026'
+                    }),
                     games='dota2,csgo,rust',
                     swapped_offers=0,
                     algorithm=4,
                     min_dep=50,
                     time='12:41:30',
-                    date='6.8.2026',
+                    date='06.08.2026',
                     spammer='Sunsstylee',
                     note=''
                 ),
@@ -90,12 +97,17 @@ def init_db(app):
                     avatar_url='https://avatars.steamstatic.com/b5bd569220fa447289659b967d26425032a4e9ef_full.jpg',
                     inv_tradable='236.91',
                     inv_sub='0.85',
+                    breakdown_json=json.dumps({
+                        'tradable': {'730': 200.0, '570': 36.91, '252490': 0.0},
+                        'non_tradable': {'730': 0.85, '570': 0.0, '252490': 0.0},
+                        'updated_at': '00:09:44 03.08.2026'
+                    }),
                     games='dota2,csgo',
                     swapped_offers=0,
                     algorithm=4,
                     min_dep=50,
-                    time='0:9:44',
-                    date='3.8.2026',
+                    time='00:09:44',
+                    date='03.08.2026',
                     spammer='Sunsstylee',
                     note=''
                 )

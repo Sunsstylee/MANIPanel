@@ -4,6 +4,29 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/replacements.css') }}">
+<style>
+    /* Кастомная полоса прокрутки для модального окна в стиле MANIPane */
+    .inv-items-list {
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 6px;
+    }
+    .inv-items-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    .inv-items-list::-webkit-scrollbar-track {
+        background: rgba(15, 23, 42, 0.6);
+        border-radius: 4px;
+    }
+    .inv-items-list::-webkit-scrollbar-thumb {
+        background: rgba(0, 194, 255, 0.4);
+        border-radius: 4px;
+        transition: background 0.2s ease;
+    }
+    .inv-items-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 194, 255, 0.7);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -11,12 +34,16 @@
     <div class="replacements-card glass-panel">
         
         <!-- Шапка таблицы -->
-        <div class="table-top-bar">
-            <div class="search-box">
+        <div class="table-top-bar" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="top-bar-left">
                 <span class="steam-count">
-                    {{ t('replacements_steam_id_count') }} ({{ items|length }}) 
-                    <button class="btn-getall" id="btnGetAll" type="button">{{ t('btn_get_all') }}</button>
+                    {{ t('replacements_steam_id_count') }} (<span id="totalCount">{{ items|length }}</span>) 
+                    <button class="btn-getall" id="btnGetAll" type="button">
+                        <span class="btn-text">{{ t('btn_get_all') }}</span>
+                    </button>
                 </span>
+            </div>
+            <div class="search-box" style="margin-left: auto;">
                 <input type="text" id="searchInput" class="table-search-input" placeholder="{{ t('replacements_search_placeholder') }}" autocomplete="off">
             </div>
         </div>
@@ -38,10 +65,10 @@
                         <th class="col-actions">{{ t('col_actions') }}</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="replacementsTbody">
                     {% if items %}
                         {% for item in items %}
-                        <tr id="row-{{ item.id }}" data-id="{{ item.id }}">
+                        <tr id="row-{{ item.id }}" data-id="{{ item.id }}" data-steamid="{{ item.steam_id }}" data-username="{{ item.steam_name|lower }}">
                             <!-- Ник с аватаркой и ссылкой -->
                             <td class="col-user">
                                 <a href="{{ item.steam_url }}" target="_blank" rel="noopener noreferrer" class="user-cell-link" title="Steam Profile">
@@ -52,8 +79,8 @@
 
                             <!-- Инвентарь -->
                             <td class="col-inv">
-                                <div class="inv-val-main" id="inv-tr-{{ item.id }}">${{ item.inv_tradable }}</div>
-                                <div class="inv-val-sub" id="inv-sb-{{ item.id }}">${{ item.inv_sub }}</div>
+                                <div class="inv-val-main clickable-price" data-type="tradable" data-steamid="{{ item.steam_id }}" id="inv-tr-{{ item.id }}" title="Посмотреть подробнее (Tradable)">${{ item.inv_tradable }}</div>
+                                <div class="inv-val-sub clickable-price" data-type="non_tradable" data-steamid="{{ item.steam_id }}" id="inv-sb-{{ item.id }}" title="Посмотреть подробнее (Non-tradable)">${{ item.inv_sub }}</div>
                             </td>
 
                             <!-- Игры -->
@@ -111,7 +138,7 @@
                         </tr>
                         {% endfor %}
                     {% else %}
-                        <tr>
+                        <tr id="noDataRow">
                             <td colspan="10" class="no-data-cell">
                                 {{ t('replacements_empty') }}
                             </td>
@@ -124,40 +151,268 @@
     </div>
 </div>
 
+<!-- Модальное окно стоимости инвентарей по играм / GetAll -->
+<div id="invModal" class="inv-modal-overlay">
+    <div class="inv-modal-content">
+        <div class="inv-modal-header">
+            <h3 id="invModalTitle">Prices of tradable Inventories - </h3>
+            <button class="inv-modal-close" id="invModalCloseBtn" type="button">&times;</button>
+        </div>
+        <div class="inv-modal-body" id="invModalBody">
+            <div class="inv-modal-loading">{{ t('inv_loading') }}</div>
+        </div>
+        <div class="inv-modal-footer">
+            <button class="inv-modal-btn-ok" id="invModalOkBtn" type="button">OK</button>
+        </div>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    async function refreshRow(itemId) {
-        const trValNode = document.getElementById(`inv-tr-${itemId}`);
-        if (trValNode) trValNode.style.opacity = '0.5';
+    // Локализованные тексты для JavaScript
+    const i18n = {
+        loading: "{{ t('inv_loading') }}",
+        loadError: "{{ t('inv_load_error') }}",
+        fetchError: "{{ t('inv_fetch_error') }}",
+        lastUpdated: "{{ t('inv_last_updated') }}",
+        updateDate: "{{ t('inv_update_date') }}",
+        noProfiles: "{{ t('no_linked_profiles') }}",
+        confirmDelete: "{{ t('confirm_delete_replacement') }}",
+        deleteError: "{{ t('error_deleting_replacement') }}",
+        serverError: "{{ t('server_connection_error') }}",
+        searchNoResults: "{{ t('search_no_results') }}",
+        allProfilesTitle: "{{ t('all_linked_profiles') }}"
+    };
+
+    // Элементы модального окна
+    const invModal = document.getElementById('invModal');
+    const invModalTitle = document.getElementById('invModalTitle');
+    const invModalBody = document.getElementById('invModalBody');
+    const invModalCloseBtn = document.getElementById('invModalCloseBtn');
+    const invModalOkBtn = document.getElementById('invModalOkBtn');
+    
+    // Элементы поиска и обновления
+    const searchInput = document.getElementById('searchInput');
+    const getAllBtn = document.getElementById('btnGetAll');
+    const tbody = document.getElementById('replacementsTbody');
+
+    const closeModal = () => invModal.classList.remove('active');
+
+    if (invModalCloseBtn) invModalCloseBtn.addEventListener('click', closeModal);
+    if (invModalOkBtn) invModalOkBtn.addEventListener('click', closeModal);
+    
+    let isMouseDownOnOverlay = false;
+
+    invModal.addEventListener('mousedown', (e) => {
+        isMouseDownOnOverlay = (e.target === invModal);
+    });
+
+    invModal.addEventListener('mouseup', (e) => {
+        if (isMouseDownOnOverlay && e.target === invModal) {
+            closeModal();
+        }
+        isMouseDownOnOverlay = false;
+    });
+
+    // Делегирование событий клика по ценам инвентарей
+    document.addEventListener('click', async (e) => {
+        const priceTarget = e.target.closest('.clickable-price');
+        if (!priceTarget) return;
+
+        const type = priceTarget.getAttribute('data-type');
+        const steamId = priceTarget.getAttribute('data-steamid');
+        const isTradable = type === 'tradable';
+
+        invModalTitle.textContent = isTradable 
+            ? `Prices of tradable Inventories - ${steamId}` 
+            : `Prices of non-tradable Inventories - ${steamId}`;
+
+        invModalBody.innerHTML = `<div class="inv-modal-loading">${i18n.loading}</div>`;
+        invModal.classList.add('active');
 
         try {
-            const res = await fetch(`/api/replacements/refresh/${itemId}`, { method: 'POST' });
-            const data = await res.json();
-            if (data.success && data.item) {
-                const item = data.item;
-                document.getElementById(`name-${itemId}`).textContent = item.steam_name;
-                document.getElementById(`avatar-${itemId}`).src = item.avatar_url;
-                document.getElementById(`inv-tr-${itemId}`).textContent = `$${item.inv_tradable}`;
-                document.getElementById(`inv-sb-${itemId}`).textContent = `$${item.inv_sub}`;
+            const response = await fetch(`/api/replacements/inventory_breakdown/${steamId}`);
+            const data = await response.json();
+
+            if (data.success) {
+                const itemsList = isTradable ? data.tradable : data.non_tradable;
+                
+                let html = '<div class="inv-items-list">';
+                if (itemsList && itemsList.length > 0) {
+                    itemsList.forEach(item => {
+                        html += `
+                            <div class="inv-item-row">
+                                <img src="${item.icon}" alt="${item.name}" class="inv-game-icon" onerror="this.style.display='none'">
+                                <span class="inv-game-name">${item.name}</span>
+                                <span class="inv-game-price">$${item.price}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += '<div class="inv-empty-msg">$0.00</div>';
+                }
+                html += '</div>';
+                html += `<div class="inv-modal-date">${i18n.lastUpdated} <i>${data.updated_at}</i></div>`;
+                
+                invModalBody.innerHTML = html;
+            } else {
+                invModalBody.innerHTML = `<div class="inv-empty-msg">${i18n.loadError}</div>`;
             }
-        } catch (e) {
-            console.error(`Ошибка обновления аккаунта ID ${itemId}:`, e);
+        } catch (err) {
+            console.error(err);
+            invModalBody.innerHTML = `<div class="inv-empty-msg">${i18n.fetchError}</div>`;
+        }
+    });
+
+    // Обработчик удаления записи
+    document.addEventListener('click', async (e) => {
+        const removeBtn = e.target.closest('.act-remove');
+        if (!removeBtn) return;
+
+        const tr = removeBtn.closest('tr');
+        const itemId = tr ? tr.dataset.id : null;
+
+        if (!itemId) return;
+
+        if (!confirm(i18n.confirmDelete)) {
+            return;
+        }
+
+        removeBtn.disabled = true;
+        removeBtn.style.opacity = '0.5';
+
+        try {
+            const response = await fetch(`/api/replacements/delete/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                tr.style.transition = 'all 0.3s ease';
+                tr.style.opacity = '0';
+                tr.style.transform = 'translateX(20px)';
+                
+                setTimeout(() => {
+                    tr.remove();
+
+                    const totalCountEl = document.getElementById('totalCount');
+                    const remainingRows = document.querySelectorAll('#replacementsTbody tr[data-id]');
+                    if (totalCountEl) {
+                        totalCountEl.textContent = remainingRows.length;
+                    }
+
+                    if (remainingRows.length === 0) {
+                        if (tbody) {
+                            tbody.innerHTML = `
+                                <tr id="noDataRow">
+                                    <td colspan="10" class="no-data-cell">
+                                        {{ t('replacements_empty') }}
+                                    </td>
+                                </tr>`;
+                        }
+                    }
+                }, 300);
+            } else {
+                alert(data.error || i18n.deleteError);
+                removeBtn.disabled = false;
+                removeBtn.style.opacity = '1';
+            }
+        } catch (err) {
+            console.error('Ошибка при запросе на удаление:', err);
+            alert(i18n.serverError);
+            removeBtn.disabled = false;
+            removeBtn.style.opacity = '1';
+        }
+    });
+
+    // Живой поиск с поддержкой вывода сообщения «Нет результатов»
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#replacementsTbody tr[data-id]');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const steamId = (row.getAttribute('data-steamid') || '').toLowerCase();
+                const username = (row.getAttribute('data-username') || '').toLowerCase();
+                const noteInput = row.querySelector('.note-input');
+                const note = noteInput ? noteInput.value.toLowerCase() : '';
+                const spammer = row.querySelector('.spammer-badge') ? row.querySelector('.spammer-badge').innerText.toLowerCase() : '';
+
+                const isMatch = steamId.includes(query) || username.includes(query) || note.includes(query) || spammer.includes(query);
+                if (isMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Обработка строки "Нет результатов"
+            let searchNoResultsRow = document.getElementById('searchNoResultsRow');
+            if (!searchNoResultsRow) {
+                searchNoResultsRow = document.createElement('tr');
+                searchNoResultsRow.id = 'searchNoResultsRow';
+                searchNoResultsRow.innerHTML = `<td colspan="10" class="no-data-cell">${i18n.searchNoResults}</td>`;
+                tbody.appendChild(searchNoResultsRow);
+            }
+
+            searchNoResultsRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+        });
+    }
+
+    // Обработчик кнопки GetAll со скроллом
+    async function handleGetAll() {
+        if (!getAllBtn) return;
+        getAllBtn.disabled = true;
+        getAllBtn.classList.add('loading');
+
+        invModalTitle.textContent = i18n.allProfilesTitle;
+        invModalBody.innerHTML = `<div class="inv-modal-loading">${i18n.loading}</div>`;
+        invModal.classList.add('active');
+
+        try {
+            const response = await fetch('/api/replacements/get_all_profiles');
+            const data = await response.json();
+
+            if (data.success) {
+                const profiles = data.profiles;
+                let html = '<div class="inv-items-list">';
+                if (profiles && profiles.length > 0) {
+                    profiles.forEach(p => {
+                        html += `
+                            <div class="inv-item-row" style="justify-content: flex-start; gap: 12px;">
+                                <img src="${p.avatar_url}" alt="" class="user-avatar" style="width: 22px; height: 22px; border-radius: 4px;" onerror="this.src='https://avatars.steamstatic.com/c578f307300c3a8122d20d7f25d3010b965f7c3c_full.jpg'">
+                                <span class="inv-game-name" style="margin-left: 0; font-weight: 700; color: #fff;">${p.steam_name}</span>
+                                <span class="inv-game-price" style="color: var(--neon-color, #00c2ff); margin-left: auto;">${p.steam_id}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `<div class="inv-empty-msg">${i18n.noProfiles}</div>`;
+                }
+                html += '</div>';
+                html += `<div class="inv-modal-date">${i18n.updateDate} <i>${data.updated_at}</i></div>`;
+                
+                invModalBody.innerHTML = html;
+            } else {
+                invModalBody.innerHTML = `<div class="inv-empty-msg">${i18n.loadError}</div>`;
+            }
+        } catch (err) {
+            console.error(err);
+            invModalBody.innerHTML = `<div class="inv-empty-msg">${i18n.fetchError}</div>`;
         } finally {
-            if (trValNode) trValNode.style.opacity = '1';
+            getAllBtn.disabled = false;
+            getAllBtn.classList.remove('loading');
         }
     }
 
-    async function refreshAll() {
-        const rows = document.querySelectorAll('tr[data-id]');
-        for (const row of rows) {
-            const id = row.getAttribute('data-id');
-            await refreshRow(id);
-        }
-    }
-
-    const getAllBtn = document.getElementById('btnGetAll');
     if (getAllBtn) {
-        getAllBtn.addEventListener('click', refreshAll);
+        getAllBtn.addEventListener('click', handleGetAll);
     }
 });
 </script>

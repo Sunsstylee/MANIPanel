@@ -165,5 +165,16 @@
     "replacements_empty": "No replacements found",
     "err_enter_steamid": "Please enter SteamID!",
     "err_steamid_already_claimed": "This SteamID is already pinned to another user!",
-    "msg_pin_success": "Replacement successfully pinned to your account!"
+    "msg_pin_success": "Replacement successfully pinned to your account!",
+    "search_no_results": "No results",
+    "inv_loading": "Loading data from database...",
+    "inv_load_error": "Failed to load data from database.",
+    "inv_fetch_error": "Error fetching data.",
+    "inv_last_updated": "Last updated:",
+    "inv_update_date": "Update date:",
+    "no_linked_profiles": "No linked profiles",
+    "confirm_delete_replacement": "Are you sure you want to delete this replacement?",
+    "error_deleting_replacement": "Error deleting entry",
+    "server_connection_error": "Failed to contact server",
+    "all_linked_profiles": "All Linked Profiles"
 }

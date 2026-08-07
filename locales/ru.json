@@ -165,5 +165,16 @@
     "replacements_empty": "Подмены не найдены",
     "err_enter_steamid": "Введите SteamID!",
     "err_steamid_already_claimed": "Этот SteamID уже закрепил другой пользователь!",
-    "msg_pin_success": "Подмена успешно закреплена за вашим аккаунтом!"
+    "msg_pin_success": "Подмена успешно закреплена за вашим аккаунтом!",
+    "search_no_results": "Нет результатов",
+    "inv_loading": "Загрузка данных из базы...",
+    "inv_load_error": "Не удалось загрузить данные из базы.",
+    "inv_fetch_error": "Ошибка получения данных.",
+    "inv_last_updated": "Дата последнего обновления:",
+    "inv_update_date": "Дата обновления:",
+    "no_linked_profiles": "Нет привязанных профилей",
+    "confirm_delete_replacement": "Вы действительно хотите удалить эту подмену?",
+    "error_deleting_replacement": "Ошибка при удалении записи",
+    "server_connection_error": "Не удалось связаться с сервером",
+    "all_linked_profiles": "Все привязанные профили"
 }
