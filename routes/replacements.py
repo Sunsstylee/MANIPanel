@@ -5,7 +5,6 @@ import json
 import time
 import re
 import threading
-import cloudscraper
 from datetime import datetime
 from locales.i18n import t
 from routes.auth import login_required
@@ -27,50 +26,26 @@ def load_global_price_cache():
         return GLOBAL_PRICE_CACHE
 
     cache = {}
-    
-    url_tradeit = "https://tradeit.gg/api/v2/inventory/data"
+    url_market = "https://market.csgo.com/api/v2/prices/USD.json"
     try:
-        scraper = cloudscraper.create_scraper()
-        response = scraper.get(url_tradeit, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            items_list = data if isinstance(data, list) else data.get('items', [])
-            for item in items_list:
-                name = item.get('name') or item.get('market_hash_name')
-                price_str = item.get('price') or item.get('buffPrice') or item.get('value')
-                if name and price_str is not None:
-                    try:
-                        cache[name] = float(price_str)
-                    except ValueError:
-                        pass
-            if cache:
-                print(f"[PRICE CACHE] Цены с Tradeit успешно загружены ({len(cache)} предметов)")
-        else:
-            print(f"[PRICE CACHE WARNING] Tradeit вернул статус {response.status_code}, переключение на резерв...")
+        req = urllib.request.Request(url_market, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': 'application/json'
+        })
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            if data.get('success') and 'items' in data:
+                for item in data['items']:
+                    name = item.get('market_hash_name')
+                    price_str = item.get('price')
+                    if name and price_str:
+                        try:
+                            cache[name] = float(price_str)
+                        except ValueError:
+                            pass
+                print(f"[PRICE CACHE] База цен успешно загружена ({len(cache)} предметов)")
     except Exception as e:
-        print(f"[PRICE CACHE WARNING] Tradeit API недоступен ({e}), переключение на резервный источник...")
-
-    if not cache:
-        url_market = "https://market.csgo.com/api/v2/prices/USD.json"
-        try:
-            req = urllib.request.Request(url_market, headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                'Accept': 'application/json'
-            })
-            with urllib.request.urlopen(req, timeout=10) as response:
-                data = json.loads(response.read().decode('utf-8'))
-                if data.get('success') and 'items' in data:
-                    for item in data['items']:
-                        name = item.get('market_hash_name')
-                        price_str = item.get('price')
-                        if name and price_str:
-                            try:
-                                cache[name] = float(price_str)
-                            except ValueError:
-                                pass
-                    print(f"[PRICE CACHE] База цен успешно загружена из резерва ({len(cache)} предметов)")
-        except Exception as e2:
-            print(f"[PRICE CACHE ERROR] Ошибка резервного источника цен: {e2}")
+        print(f"[PRICE CACHE ERROR] Ошибка загрузки базы цен: {e}")
 
     if cache:
         GLOBAL_PRICE_CACHE = cache
@@ -256,28 +231,30 @@ def add_replacement():
     elif 'steamcommunity.com/id/' in clean_id:
         clean_id = clean_id.split('steamcommunity.com/id/')[1].strip('/').split('/')[0]
 
+    # Быстрая проверка
     if clean_id.isdigit() and len(clean_id) == 17:
         any_existing = Replacement.query.filter_by(steam_id=clean_id).first()
-        if any_existing and any_existing.spammer and any_existing.spammer != current_username:
-            return jsonify({'success': False, 'error': 'This SteamID is already claimed by another user'}), 400
+        if any_existing:
+            if any_existing.spammer and any_existing.spammer != current_username:
+                return jsonify({'success': False, 'error': 'This SteamID is already claimed by another user'}), 400
+            elif any_existing.spammer == current_username:
+                return jsonify({'success': False, 'error': 'Этот SteamID уже закреплен за вами!'}), 400
 
+    # Разрешаем профиль для получения 100% steam64
     steam64, steam_name, avatar_url = resolve_steam_profile(raw_steam_id)
 
     if not (steam64.isdigit() and len(steam64) == 17):
         return jsonify({'success': False, 'error': 'Invalid SteamID'}), 400
 
-    existing_item = Replacement.query.filter_by(steam_id=steam64, spammer=current_username).first()
+    # Точная проверка по разрешенному steam64
+    existing_item = Replacement.query.filter_by(steam_id=steam64).first()
     if existing_item:
-        existing_item.steam_name = steam_name
-        existing_item.avatar_url = avatar_url
-        existing_item.steam_url = f"https://steamcommunity.com/profiles/{steam64}"
-        db.session.commit()
+        if existing_item.spammer and existing_item.spammer != current_username:
+            return jsonify({'success': False, 'error': 'This SteamID is already claimed by another user'}), 400
+        elif existing_item.spammer == current_username:
+            return jsonify({'success': False, 'error': 'Этот SteamID уже закреплен за вами!'}), 400
 
-        app = current_app._get_current_object()
-        threading.Thread(target=background_update_inventory_replacement, args=(app, steam64)).start()
-
-        return jsonify({'success': True, 'item': existing_item.to_dict()})
-
+    # Моментально закрепляем в БД с нулевым инвентарем
     new_item = Replacement(
         steam_id=steam64,
         steam_name=steam_name,
@@ -297,6 +274,7 @@ def add_replacement():
     db.session.add(new_item)
     db.session.commit()
 
+    # Запускаем парсинг инвентаря в фоне
     app = current_app._get_current_object()
     threading.Thread(target=background_update_inventory_replacement, args=(app, steam64)).start()
 

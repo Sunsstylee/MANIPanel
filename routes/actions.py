@@ -6,7 +6,6 @@ import json
 import time
 import re
 import threading
-import cloudscraper
 from locales.i18n import t
 from routes.auth import login_required
 from database.database import db, Replacement
@@ -27,50 +26,26 @@ def load_global_price_cache():
         return GLOBAL_PRICE_CACHE
 
     cache = {}
-    
-    url_tradeit = "https://tradeit.gg/api/v2/inventory/data"
+    url_market = "https://market.csgo.com/api/v2/prices/USD.json"
     try:
-        scraper = cloudscraper.create_scraper()
-        response = scraper.get(url_tradeit, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            items_list = data if isinstance(data, list) else data.get('items', [])
-            for item in items_list:
-                name = item.get('name') or item.get('market_hash_name')
-                price_str = item.get('price') or item.get('buffPrice') or item.get('value')
-                if name and price_str is not None:
-                    try:
-                        cache[name] = float(price_str)
-                    except ValueError:
-                        pass
-            if cache:
-                print(f"[PRICE CACHE] Цены с Tradeit успешно загружены ({len(cache)} предметов)")
-        else:
-            print(f"[PRICE CACHE WARNING] Tradeit вернул статус {response.status_code}, переключение на резерв...")
+        req = urllib.request.Request(url_market, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': 'application/json'
+        })
+        with urllib.request.urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            if data.get('success') and 'items' in data:
+                for item in data['items']:
+                    name = item.get('market_hash_name')
+                    price_str = item.get('price')
+                    if name and price_str:
+                        try:
+                            cache[name] = float(price_str)
+                        except ValueError:
+                            pass
+                print(f"[PRICE CACHE] База цен успешно загружена ({len(cache)} предметов)")
     except Exception as e:
-        print(f"[PRICE CACHE WARNING] Tradeit API недоступен ({e}), переключение на резервный источник...")
-
-    if not cache:
-        url_market = "https://market.csgo.com/api/v2/prices/USD.json"
-        try:
-            req = urllib.request.Request(url_market, headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-                'Accept': 'application/json'
-            })
-            with urllib.request.urlopen(req, timeout=10) as response:
-                data = json.loads(response.read().decode('utf-8'))
-                if data.get('success') and 'items' in data:
-                    for item in data['items']:
-                        name = item.get('market_hash_name')
-                        price_str = item.get('price')
-                        if name and price_str:
-                            try:
-                                cache[name] = float(price_str)
-                            except ValueError:
-                                pass
-                    print(f"[PRICE CACHE] База цен успешно загружена из резерва ({len(cache)} предметов)")
-        except Exception as e2:
-            print(f"[PRICE CACHE ERROR] Ошибка резервного источника цен: {e2}")
+        print(f"[PRICE CACHE ERROR] Ошибка загрузки базы цен: {e}")
 
     if cache:
         GLOBAL_PRICE_CACHE = cache
@@ -253,24 +228,29 @@ def request_pin():
     elif 'steamcommunity.com/id/' in clean_id:
         clean_id = clean_id.split('steamcommunity.com/id/')[1].strip('/').split('/')[0]
 
+    # Быстрая проверка
     if clean_id.isdigit() and len(clean_id) == 17:
         existing_check = Replacement.query.filter_by(steam_id=clean_id).first()
-        if existing_check and existing_check.spammer and existing_check.spammer != current_user:
-            return jsonify({'success': False, 'message': t('err_steamid_already_claimed', lang)}), 400
+        if existing_check:
+            if existing_check.spammer and existing_check.spammer != current_user:
+                return jsonify({'success': False, 'message': t('err_steamid_already_claimed', lang)}), 400
+            elif existing_check.spammer == current_user:
+                return jsonify({'success': False, 'message': 'Этот SteamID уже закреплен за вашим аккаунтом!'}), 400
 
     steam64, steam_name, avatar_url = resolve_steam_profile(raw_steam_id)
 
     if not (steam64.isdigit() and len(steam64) == 17):
         return jsonify({'success': False, 'message': t('err_enter_steamid', lang)}), 400
 
+    # Точная проверка
     existing = Replacement.query.filter_by(steam_id=steam64).first()
-    
     if existing:
         if existing.spammer and existing.spammer != current_user:
             return jsonify({'success': False, 'message': t('err_steamid_already_claimed', lang)}), 400
         elif existing.spammer == current_user:
             return jsonify({'success': False, 'message': 'Этот SteamID уже закреплен за вашим аккаунтом!'}), 400
 
+    # Моментальный закреп
     now = datetime.now()
     new_item = Replacement(
         steam_id=steam64,
@@ -291,6 +271,7 @@ def request_pin():
     db.session.add(new_item)
     db.session.commit()
 
+    # Инвентарь парсится в фоне
     app = current_app._get_current_object()
     threading.Thread(target=background_update_inventory_action, args=(app, steam64)).start()
 
