@@ -311,9 +311,12 @@ body.has-denied-overlay {
     display: flex;
     flex: 1;
     gap: 24px;
-    padding: 20px 24px 24px 24px;
+
+    /* Залишаємо місце під fixed-сайдбар */
+    padding: 20px 24px 24px 308px;
+
     width: 100%;
-    align-items: flex-start; /* ИЗМЕНЕНО: выравнивание по верху для корректного фикса сайдбара */
+    align-items: flex-start;
 }
 
 .sidebar {
@@ -323,12 +326,28 @@ body.has-denied-overlay {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    position: sticky;
+
+    /*
+     * FIXED:
+     * сайдбар завжди залишається на екрані під шапкою,
+     * а сама сторінка може скролитися незалежно від нього.
+     */
+    position: fixed;
+    left: 24px;
     top: 96px;
-    max-height: calc(100vh - 120px);
+    bottom: 24px;
+
+    /* Від верху сайдбара і до самого низу вікна */
+    height: auto;
+    min-height: 0;
+    max-height: none;
+
+    /* Если пунктів стане дуже багато — скролиться тільки сам sidebar */
     overflow-y: auto;
+    overflow-x: hidden;
+
     box-sizing: border-box;
-    align-self: flex-start; /* ИЗМЕНЕНО: гарантирует фиксацию сайдбара на длинных страницах */
+    z-index: 900;
 }
 
 .sidebar-nav {
