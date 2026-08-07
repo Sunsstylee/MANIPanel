@@ -5,7 +5,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/replacements.css') }}">
 <style>
-    /* Кастомная полоса прокрутки для модального окна в стиле MANIPane */
     .inv-items-list {
         max-height: 300px;
         overflow-y: auto;
@@ -34,7 +33,7 @@
     <div class="replacements-card glass-panel">
         
         <!-- Шапка таблицы -->
-        <div class="table-top-bar" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="table-top-bar">
             <div class="top-bar-left">
                 <span class="steam-count">
                     {{ t('replacements_steam_id_count') }} (<span id="totalCount">{{ items|length }}</span>) 
@@ -43,7 +42,7 @@
                     </button>
                 </span>
             </div>
-            <div class="search-box" style="margin-left: auto;">
+            <div class="search-box">
                 <input type="text" id="searchInput" class="table-search-input" placeholder="{{ t('replacements_search_placeholder') }}" autocomplete="off">
             </div>
         </div>
@@ -169,7 +168,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Локализованные тексты для JavaScript
     const i18n = {
         loading: "{{ t('inv_loading') }}",
         loadError: "{{ t('inv_load_error') }}",
@@ -184,14 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
         allProfilesTitle: "{{ t('all_linked_profiles') }}"
     };
 
-    // Элементы модального окна
     const invModal = document.getElementById('invModal');
     const invModalTitle = document.getElementById('invModalTitle');
     const invModalBody = document.getElementById('invModalBody');
     const invModalCloseBtn = document.getElementById('invModalCloseBtn');
     const invModalOkBtn = document.getElementById('invModalOkBtn');
     
-    // Элементы поиска и обновления
     const searchInput = document.getElementById('searchInput');
     const getAllBtn = document.getElementById('btnGetAll');
     const tbody = document.getElementById('replacementsTbody');
@@ -214,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         isMouseDownOnOverlay = false;
     });
 
-    // Делегирование событий клика по ценам инвентарей
     document.addEventListener('click', async (e) => {
         const priceTarget = e.target.closest('.clickable-price');
         if (!priceTarget) return;
@@ -264,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Обработчик удаления записи
     document.addEventListener('click', async (e) => {
         const removeBtn = e.target.closest('.act-remove');
         if (!removeBtn) return;
@@ -329,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Живой поиск с поддержкой вывода сообщения «Нет результатов»
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
@@ -352,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Обработка строки "Нет результатов"
             let searchNoResultsRow = document.getElementById('searchNoResultsRow');
             if (!searchNoResultsRow) {
                 searchNoResultsRow = document.createElement('tr');
@@ -365,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Обработчик кнопки GetAll со скроллом
     async function handleGetAll() {
         if (!getAllBtn) return;
         getAllBtn.disabled = true;

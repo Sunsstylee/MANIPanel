@@ -313,7 +313,7 @@ body.has-denied-overlay {
     gap: 24px;
     padding: 20px 24px 24px 24px;
     width: 100%;
-    align-items: stretch;
+    align-items: flex-start; /* ИЗМЕНЕНО: выравнивание по верху для корректного фикса сайдбара */
 }
 
 .sidebar {
@@ -325,10 +325,10 @@ body.has-denied-overlay {
     justify-content: space-between;
     position: sticky;
     top: 96px;
-    height: calc(100vh - 120px);
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     box-sizing: border-box;
+    align-self: flex-start; /* ИЗМЕНЕНО: гарантирует фиксацию сайдбара на длинных страницах */
 }
 
 .sidebar-nav {
